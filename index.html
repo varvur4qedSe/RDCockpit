@@ -1,0 +1,1159 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0e1a2c">
+<title>RD-Einsatzcockpit – Version 1.5</title>
+<style>
+:root{
+  --bg:#eaeef4;--surface:#fff;--surface2:#eef1f6;--text:#141a24;--muted:#617086;
+  --line:#d9dfe8;--blue:#1457d9;--blue2:#e6eefc;--blue-ink:#0e3f9e;
+  --green:#d4f3dc;--yellow:#ffe98a;--red:#ffb4ae;--redtp:#9b111e;--black:#222730;
+  --navy:#0e1a2c;--navy2:#18283f;
+  --shadow:0 1px 2px #0f1b2d0f,0 4px 14px #0f1b2d0a;--radius:18px;
+  --safe-t:env(safe-area-inset-top,0px);--safe-b:env(safe-area-inset-bottom,0px);
+}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text","Segoe UI",Roboto,Helvetica,Arial,sans-serif;font-size:15px;line-height:1.42;-webkit-font-smoothing:antialiased}
+button,input,select,textarea{font:inherit}
+button{cursor:pointer;border:0;border-radius:12px;padding:10px 15px;min-height:42px;background:var(--surface2);color:var(--text);font-weight:600;transition:background .15s,transform .1s,box-shadow .15s;-webkit-tap-highlight-color:transparent}
+button:hover{background:#e2e7ef}
+button:active{transform:scale(.97)}
+button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible,summary:focus-visible{outline:3px solid #1457d955;outline-offset:2px}
+button.primary{background:var(--blue);color:#fff;box-shadow:0 2px 8px #1457d94d}
+button.primary:hover{background:#0f48b8}
+button.danger{background:#ffe6e4;color:#a1141f}
+button.danger:hover{background:#ffd3cf}
+button.small{padding:6px 10px;min-height:32px;font-size:13px;border-radius:10px}
+button:disabled{opacity:.45;cursor:not-allowed}
+input,select,textarea{width:100%;border:1.5px solid var(--line);border-radius:12px;padding:11px 12px;background:#fff;color:var(--text);min-width:0;transition:border-color .15s,box-shadow .15s}
+input:focus,select:focus,textarea:focus{outline:none;border-color:var(--blue);box-shadow:0 0 0 4px #1457d91f}
+textarea{resize:vertical;min-height:80px}
+label{display:block;color:var(--muted);font-size:12.5px;font-weight:650;margin:0 0 6px;letter-spacing:.1px}
+summary{cursor:pointer;font-weight:600;color:var(--blue-ink);padding:4px 0}
+.field{min-width:0}
+.grid{display:grid;gap:14px}
+.grid.two{grid-template-columns:repeat(2,minmax(0,1fr))}
+.grid.three{grid-template-columns:repeat(3,minmax(0,1fr))}
+
+/* Kopfzeile: dunkle Leitstellen-Leiste */
+.app-header{position:sticky;top:0;z-index:10;background:var(--navy);color:#fff;border-bottom:1px solid #ffffff14;padding:12px max(16px,env(safe-area-inset-left));padding-top:calc(12px + var(--safe-t))}
+.header-inner{max-width:1500px;margin:auto;display:flex;align-items:center;gap:14px;justify-content:space-between}
+.brand{display:flex;gap:12px;align-items:center;min-width:0}
+.brand-icon{width:40px;height:40px;border-radius:12px;background:linear-gradient(145deg,#e5342f,#b3141c);color:#fff;display:grid;place-items:center;font-size:26px;font-weight:800;line-height:1;flex:0 0 auto;box-shadow:0 2px 10px #e5342f66}
+.brand h1{font-size:18px;margin:0;letter-spacing:-.3px;font-weight:750}
+.brand p{margin:1px 0 0;font-size:12px;color:#9fb0c8;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.header-actions{display:flex;gap:8px;align-items:center}
+.header-actions button{background:var(--navy2);color:#e8eefa;border:1px solid #ffffff1a}
+.header-actions button:hover{background:#22364f}
+.header-actions .header-plus{background:var(--blue);color:#fff;border:0}
+
+main{max-width:1500px;margin:0 auto;padding:18px 16px 90px}
+.tabs{display:flex;gap:4px;padding:5px;background:#dce2ec;border-radius:16px;margin-bottom:20px;overflow-x:auto;position:sticky;top:calc(65px + var(--safe-t));z-index:8}
+.tab{white-space:nowrap;flex:1;min-width:max-content;background:transparent;color:var(--muted);padding:11px 16px;border-radius:12px;min-height:44px;font-size:15px}
+.tab:hover{background:#ffffff80}
+.tab.active{background:#fff;color:var(--text);box-shadow:0 1px 3px #0f1b2d1f,0 0 0 1px #0f1b2d0a}
+.page{display:none}.page.active{display:block!important}
+
+.section-head{display:flex;align-items:center;justify-content:space-between;gap:12px;margin:22px 0 14px}
+.section-head h2{font-size:23px;letter-spacing:-.6px;margin:0;font-weight:760}
+.section-head p{margin:3px 0 0;color:var(--muted);font-size:13.5px}
+.card{background:var(--surface);border-radius:var(--radius);padding:18px;box-shadow:var(--shadow);min-width:0}
+.card h3{font-size:16px;margin:0 0 12px;letter-spacing:-.2px}
+.muted{color:var(--muted)}.tiny{font-size:12.5px;color:var(--muted)}
+
+.kpi-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px}
+.kpi{background:#fff;border-radius:16px;padding:16px 18px;box-shadow:var(--shadow);border-top:3px solid var(--blue)}
+.kpi .num{font-size:32px;font-weight:760;letter-spacing:-1.2px;line-height:1.1;font-variant-numeric:tabular-nums}
+.kpi .cap{color:var(--muted);font-size:12.5px;margin-top:3px}
+
+.dashboard-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;align-items:start}
+.dashboard-column{display:flex;flex-direction:column;gap:14px;min-width:0}
+.dashboard-column .area{min-width:0}
+.area{background:#fff;border:1px solid #dfe4ec;border-radius:var(--radius);min-height:205px;overflow:hidden;box-shadow:var(--shadow)}
+.area.drop-target{outline:3px solid #6fa2ff;background:#f3f7ff}
+.unit-tile.drop-target{outline:3px solid var(--blue);background:#e6eefc}
+.unit-tile[data-drop-unit]{transition:outline .1s,background .1s}
+.area-head{padding:14px 16px;display:flex;justify-content:space-between;gap:10px;align-items:center;border-bottom:1px solid #e8ecf2;background:#f8f9fc}
+.area-head h3{margin:0;font-size:15.5px;font-weight:720}
+.area-head .count{color:var(--muted);font-size:12.5px;background:#e8ecf3;border-radius:999px;padding:2px 9px;font-weight:650}
+.area-body{padding:12px;display:grid;gap:9px;min-height:150px}
+.empty{padding:22px 12px;text-align:center;color:#8592a6;font-size:13px;border:1.5px dashed #d3dae5;border-radius:14px}
+
+.person-tile,.unit-tile{border-radius:14px;padding:11px 13px;border:1px solid #0f1b2d12;display:flex;align-items:flex-start;justify-content:space-between;gap:10px;cursor:grab;user-select:none;-webkit-user-select:none;transition:box-shadow .15s,transform .1s}
+.person-tile:hover,.unit-tile:hover{box-shadow:0 3px 12px #0f1b2d1f}
+.person-tile:active,.unit-tile:active{cursor:grabbing}
+.person-tile .mainline,.unit-tile .mainline{font-weight:740;overflow-wrap:anywhere;letter-spacing:-.1px}
+.person-tile .subline,.unit-tile .subline{font-size:12.5px;opacity:.82;margin-top:2px}
+.person-tile.red{background:var(--red)}.person-tile.redtp{background:var(--redtp);color:#fff;font-weight:700}
+.person-tile.yellow{background:var(--yellow)}.person-tile.green{background:var(--green)}
+.person-tile.white{background:#fff;border:1.5px solid #c3cad6}.person-tile.black{background:var(--black);color:#fff}
+.person-tile.uncat{background:#eef0f4}
+.tile-actions{display:flex;gap:5px;flex-shrink:0;flex-wrap:wrap}
+.tile-actions button{padding:5px 9px;min-height:32px;font-size:12.5px;background:#ffffffc7;border-radius:10px}
+.tile-actions button:hover{background:#fff}
+.unit-tile{background:#f4f6fa;display:block}
+.assigned-patients{display:grid;gap:6px}
+.assigned-patient{display:flex;align-items:center;justify-content:space-between;gap:8px;border-radius:10px;padding:7px 10px;font-size:12.5px}
+.assigned-patient.redtp{background:#9b111e;color:#fff}.assigned-patient.red{background:#ffb4ae}
+.assigned-patient.yellow{background:#ffe98a}.assigned-patient.green{background:#d4f3dc}
+.assigned-patient.white{background:#fff;border:1px solid #c3cad6}.assigned-patient.black{background:#222730;color:#fff}
+.assigned-patient.uncat{background:#e6e9f0}
+.assigned-patient button{padding:1px 8px;min-height:26px;background:#ffffffd1}
+.unit-top{display:flex;justify-content:space-between;gap:8px;align-items:flex-start}
+
+.pill{display:inline-flex;align-items:center;border-radius:999px;padding:4px 10px;font-size:11.5px;font-weight:700;background:#e5e9f0;color:#46536a}
+.pill.blue{background:#dce8ff;color:var(--blue-ink)}.pill.green{background:#d4f3dc;color:#14632a}
+.pill.red{background:#ffe0dd;color:#a1141f}
+.quick-row{display:flex;gap:8px;flex-wrap:wrap}
+.quick-row>*{flex:1}
+.list{display:grid;gap:10px}
+.list-row{display:flex;gap:12px;align-items:center;justify-content:space-between;padding:13px;border-radius:14px;background:#f4f6fa}
+.list-row .grow{min-width:0;flex:1}
+.list-row strong{display:block;overflow-wrap:anywhere}
+.list-row p{margin:2px 0 0;color:var(--muted);font-size:12.5px;overflow-wrap:anywhere}
+.preset-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(112px,1fr));gap:8px}
+.preset-call{padding:10px 8px;font-size:13.5px;background:#fff;border:1.5px solid var(--line)}
+.preset-call.selected{background:var(--blue2);border-color:var(--blue);color:var(--blue-ink)}
+.assign-list{display:grid;gap:8px}
+.assign-option{display:flex;align-items:center;gap:10px;padding:12px;background:#fff;border:1.5px solid var(--line);border-radius:12px;color:var(--text);font-size:14px}
+.assign-option small{display:block;color:var(--muted);font-size:12px}
+.note-row{padding:14px;border:1px solid #e1e6ee;border-radius:14px;background:#fff}
+.note-row p{white-space:pre-wrap;margin:8px 0}
+.note-head{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.note-date{font-size:12px;color:var(--muted)}
+.note-edit{width:38px;height:38px;padding:0;display:grid;place-items:center;border-radius:11px;background:var(--surface2);font-size:17px}
+.diary-row{display:grid;grid-template-columns:145px 1fr;gap:12px;padding:12px 0;border-bottom:1px solid #e8ecf2}
+.diary-time{font-size:12.5px;color:var(--muted);font-variant-numeric:tabular-nums}
+.diary-row p{margin:3px 0 0}
+.diary-row .category{font-size:11.5px;font-weight:750;color:#4a5668}
+.badge-row{display:flex;gap:5px;flex-wrap:wrap}
+.category-counts{display:grid;gap:10px}
+.category-count{display:grid;grid-template-columns:90px 1fr 70px;gap:10px;align-items:center}
+.category-count .bar{height:12px;border-radius:999px;background:#e8ecf2;overflow:hidden}
+.category-count .bar span{display:block;height:100%;border-radius:999px}
+.table-wrap{overflow-x:auto}
+table{border-collapse:collapse;width:100%;font-size:13.5px}
+th,td{text-align:left;padding:11px 9px;border-bottom:1px solid #e8ecf2;vertical-align:top}
+th{color:var(--muted);font-weight:650;font-size:12.5px;background:#f8f9fc}
+
+.modal-backdrop{position:fixed;inset:0;z-index:30;background:#0a1220a6;-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px);display:none;align-items:center;justify-content:center;padding:16px}
+.modal-backdrop.open{display:flex}
+.modal{width:min(720px,100%);max-height:92dvh;overflow:auto;background:#f6f8fb;border-radius:24px;padding:22px;box-shadow:0 24px 80px #0a122066}
+.modal-head{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:18px}
+.modal-head h2{margin:0;font-size:21px;letter-spacing:-.4px}
+.modal-foot{display:flex;gap:8px;justify-content:flex-end;flex-wrap:wrap;margin-top:18px;padding-bottom:var(--safe-b)}
+.segmented{display:flex;gap:6px;flex-wrap:wrap}
+.segmented button{border:1.5px solid var(--line);background:#fff}
+.segmented button.selected{background:var(--blue);border-color:var(--blue);color:#fff}
+.callout{padding:13px 14px;border-radius:14px;background:var(--blue2);color:var(--blue-ink);font-size:13.5px;border-left:4px solid var(--blue)}
+hr{border:0;border-top:1px solid #e1e6ee;margin:16px 0}
+footer{max-width:1500px;margin:0 auto;padding:0 16px 25px;color:var(--muted);font-size:12px}
+.hidden{display:none!important}
+.print-only{display:none}
+
+/* Version 1.1: vereinfachte Navigation und kompakte Kachelansichten */
+.patient-controls,.unit-controls{display:none!important}
+#page-overview,#page-archive{display:none!important}
+.tile-board{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:10px}
+.tile-board .card{padding:10px}
+#patientList,#unitList{display:grid!important;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:12px;align-items:start;visibility:visible;opacity:1;min-height:40px}
+#patientList .card,#unitList .card{padding:11px}
+.dashboard-tools{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.header-plus{width:42px;height:42px;padding:0;border-radius:50%;font-size:24px;line-height:1;background:var(--blue);color:#fff;flex:0 0 auto}
+.snapshot-row{border-left:4px solid var(--blue);background:#eef4ff;padding:13px;border-radius:12px;margin:8px 0}
+
+@media(max-width:800px){.kpi-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.dashboard-grid{grid-template-columns:1fr}.grid.three{grid-template-columns:repeat(2,minmax(0,1fr))}.tabs{top:calc(62px + var(--safe-t))}.diary-row{grid-template-columns:1fr;gap:3px}}
+@media(max-width:720px){.header-inner{gap:8px}.wide-label{display:none}#patientList,#unitList{grid-template-columns:1fr}}
+@media(max-width:460px){main{padding-left:10px;padding-right:10px}.card{padding:14px}.grid.two,.grid.three{grid-template-columns:1fr}.brand h1{font-size:15px}.brand p{display:none}.header-actions{gap:5px}.header-actions button{padding:9px}.section-head h2{font-size:20px}.category-count{grid-template-columns:76px 1fr 56px}}
+@media(prefers-reduced-motion:reduce){*{transition:none!important}}
+@page{size:A4;margin:14mm}
+@media print{
+ *{-webkit-print-color-adjust:exact;print-color-adjust:exact}
+ .print-only{display:block;margin:0 0 12px;padding-bottom:8px;border-bottom:2px solid #141a24}
+ .print-only h1{font-size:18px;margin:0 0 3px}.print-only p{margin:0;color:#444;font-size:11px}
+ #page-analysis .section-head{display:none}
+ .print-extra h2{font-size:14px;margin:0 0 8px;padding-bottom:4px;border-bottom:1px solid #999}
+ .pe-block{break-before:page}.pe-notes{margin-top:18px}
+ .pe-table{width:100%;border-collapse:collapse;font-size:10.5px}
+ .pe-table th{background:#eceff4;font-size:10px;padding:5px 6px;border-bottom:1px solid #999}
+ .pe-table td{padding:5px 6px;border-bottom:1px solid #ddd;vertical-align:top}
+ .pe-table tr{break-inside:avoid}.pe-time{white-space:nowrap}
+ .pe-cat{display:inline-block;padding:2px 8px;border-radius:999px;font-weight:700;font-size:10px;border:1px solid #0003;white-space:nowrap}
+ .pe-sub{color:#555;font-size:10px}
+ .pe-note{white-space:pre-wrap;margin-top:3px;padding:4px 6px;background:#f1f3f7;border-radius:4px;font-size:10px}
+ .pe-noteitem{padding:6px 0;border-bottom:1px solid #ddd;break-inside:avoid}.pe-text{white-space:pre-wrap}
+ body{background:#fff;font-size:11px}
+ .app-header,.tabs,footer,.no-print,.dashboard-tools,button{display:none!important}
+ main{padding:0;max-width:none}.page{display:none!important}#page-analysis{display:block!important}
+ .card,.kpi{box-shadow:none;border:1px solid #ddd;break-inside:avoid}
+ .kpi-grid{grid-template-columns:repeat(4,1fr)}.dashboard-grid{grid-template-columns:repeat(2,1fr)}
+ .grid.two{grid-template-columns:1fr 1fr}.section-head{margin:10px 0}
+}
+
+</style>
+</head>
+<body>
+<header class="app-header">
+ <div class="header-inner">
+  <div class="brand"><div class="brand-icon">+</div><div><h1>RD-Einsatzcockpit</h1><p id="headerSubtitle">Offline-Prototyp · lokal auf diesem Gerät</p></div></div>
+  <div class="header-actions">
+   <button class="header-plus" id="metadataBtn" title="Einsatzdaten ergänzen" aria-label="Einsatzdaten ergänzen">＋</button>
+   <button id="saveNowBtn" title="Lokal speichern">✓ <span class="wide-label">Speichern</span></button>
+   <button id="exportBtn" title="Einsatz exportieren">⇩ <span class="wide-label">Export</span></button>
+   <button id="importBtn" title="Einsatz importieren">⇧ <span class="wide-label">Import</span></button>
+   <button id="pdfBtn" title="Bericht als PDF erstellen und teilen">PDF</button>
+   <button id="menuBtn" title="Weitere Funktionen">⋯</button>
+  </div>
+ </div>
+</header>
+<main>
+ <nav class="tabs" aria-label="Hauptnavigation">
+  <button class="tab active" data-page="patients">Patienten</button>
+  <button class="tab" data-page="units">Fahrzeuge</button>
+  <button class="tab" data-page="notes">Notizen</button>
+  <button class="tab" data-page="dashboard">Dashboard</button>
+ </nav>
+
+ <section class="page" id="page-overview">
+  <div class="section-head"><div><h2>Einsatzübersicht</h2><p>Die wichtigsten Einsatzdaten an einem Ort.</p></div><span class="pill blue" id="currentStatePill">Aktiver Einsatz</span></div>
+  <div class="card">
+   <div class="grid two">
+    <div class="field"><label for="incidentNumber">Einsatznummer</label><input id="incidentNumber" placeholder="z. B. RD-2026-014"></div>
+    <div class="field"><label for="incidentDate">Einsatzdatum</label><input id="incidentDate" type="date"></div>
+    <div class="field"><label for="incidentAddress">Einsatzadresse / Ort</label><input id="incidentAddress" placeholder="Straße, Hausnummer, Ort"></div>
+    <div class="field"><label for="incidentLocation">Zusätzliche Ortsangabe</label><input id="incidentLocation" placeholder="z. B. Gebäude, Zufahrt, Abschnitt"></div>
+    <div class="field"><label for="rdLead">R-Dienst</label><input id="rdLead" placeholder="Name R-Dienst"></div>
+    <div class="field"><label for="lnaLead">LNA</label><input id="lnaLead" placeholder="Name LNA"></div>
+   </div>
+   <div class="quick-row" style="margin-top:14px"><button class="primary" id="saveMetadataBtn">Einsatzdaten speichern</button><button id="newIncidentBtn">Neuen Einsatz anlegen</button></div>
+   <p class="tiny" id="saveStatus" aria-live="polite" style="margin-bottom:0">Änderungen werden automatisch lokal gespeichert.</p>
+  </div>
+  <div class="section-head"><div><h2>Aktueller Überblick</h2><p>Live-Zusammenfassung des geöffneten Einsatzes.</p></div></div>
+  <div class="kpi-grid" id="overviewKpis"></div>
+  <div class="section-head"><div><h2>Schnellzugriff</h2><p>Für häufige Handgriffe im Einsatz.</p></div></div>
+  <div class="card"><div class="quick-row"><button class="primary" id="quickPatientBtn">＋ Patient anlegen</button><button id="quickUnitBtn">＋ Fahrzeug anlegen</button><button id="quickNoteBtn">＋ Notiz erfassen</button></div></div>
+  <div class="callout" style="margin-top:14px">Prototyp-Hinweis: Die Daten werden lokal in diesem Browser gespeichert. Für eine echte iPad-App, organisationsweite Nutzung und sensible Echtbetriebsdaten sind weitere Entwicklung, Datenschutzprüfung und Tests erforderlich.</div>
+ </section>
+
+ <section class="page" id="page-patients">
+  <div class="section-head"><div><h2>Patienten</h2><p>Stammdaten, Sichtungskategorie und aktuelle Zuordnung.</p></div><button class="primary" id="addPatientBtn">＋ Patient</button></div>
+  <div class="card patient-controls"><div class="grid two">
+   <div class="field"><label for="patientSearch">Suche</label><input id="patientSearch" placeholder="Name, ID, Notiz …"></div>
+   <div class="field"><label for="patientFilter">Sichtungskategorie</label><select id="patientFilter"><option value="">Alle Kategorien</option><option value="redtp">Rot TP</option><option value="red">Rot</option><option value="yellow">Gelb</option><option value="green">Grün</option><option value="white">Weiß</option><option value="black">Schwarz</option><option value="uncat">Nicht festgelegt</option></select></div>
+  </div></div>
+  <div id="patientList" class="list" style="margin-top:12px"></div>
+ </section>
+
+ <section class="page" id="page-units">
+  <div class="section-head"><div><h2>Fahrzeuge</h2><p>Funkrufname, Fahrzeugkategorie und Einsatzbereich.</p></div><button class="primary" id="addUnitBtn">＋ Fahrzeug</button></div>
+  <div class="card unit-controls"><div class="grid two">
+   <div class="field"><label for="unitSearch">Suche Funkrufname</label><input id="unitSearch" placeholder="z. B. 11-82-01"></div>
+   <div class="field"><label for="unitStatusFilter">Bestand</label><select id="unitStatusFilter"><option value="active">Aktive Fahrzeuge</option><option value="released">Aus dem Einsatz entlassen</option><option value="all">Alle</option></select></div>
+  </div></div>
+  <div id="unitList" class="list" style="margin-top:12px"></div>
+ </section>
+
+ <section class="page" id="page-notes">
+  <div class="section-head"><div><h2>Notizen / Tagebuch</h2><p>Schnellnotiz und chronologisches Ereignisprotokoll.</p></div></div>
+  <div class="card">
+   <h3>Schnellnotiz</h3>
+   <label for="quickNoteText">Text bleibt beim Tabwechsel erhalten, bis er übernommen oder gelöscht wird.</label>
+   <textarea id="quickNoteText" placeholder="Beobachtungen, Lagehinweise, offene Aufgaben …"></textarea>
+   <div class="quick-row" style="margin-top:9px"><button class="primary" id="adoptNoteBtn">Als Eintrag übernehmen</button><button id="clearQuickNoteBtn">Feld leeren</button></div>
+  </div>
+  <div class="section-head"><div><h2>Einzelnotizen</h2><p>Kurze Einzelnotizen; über das Stiftsymbol bearbeiten oder löschen.</p></div><button id="newStandaloneNoteBtn">＋ Notiz</button></div>
+  <div id="standaloneNotes" class="list"></div>
+  <div class="section-head"><div><h2>Einsatztagebuch</h2><p>Automatische und manuelle Ereignisse; chronologisch gespeichert.</p></div><button class="primary" id="manualDiaryBtn">＋ Manueller Eintrag</button></div>
+  <div class="card">
+   <div class="grid three">
+    <div class="field"><label for="diarySearch">Freitextsuche</label><input id="diarySearch" placeholder="Ereignis suchen"></div>
+    <div class="field"><label for="diaryCategoryFilter">Kategorie</label><select id="diaryCategoryFilter"><option value="">Alle Kategorien</option></select></div>
+    <div class="field"><label for="diaryDateFilter">Datum</label><input id="diaryDateFilter" type="date"></div>
+   </div>
+   <div id="diaryList" style="margin-top:10px"></div>
+  </div>
+ </section>
+
+ <section class="page" id="page-dashboard">
+  <div class="section-head"><div><h2>Dashboard</h2><p>Patienten und Fahrzeuge direkt zuordnen.</p></div><div class="dashboard-tools"><button class="primary" id="openAnalysisBtn">Analyse</button><button id="addAreaBtn">＋ Bereich</button></div></div>
+  <div class="kpi-grid" id="dashboardKpis" style="margin-bottom:14px"></div>
+  <div class="quick-row" style="margin-bottom:12px"><button class="primary" id="dashboardAddPatient">＋ Patient</button><button id="dashboardAddUnit">＋ Fahrzeug</button><button id="dashboardOpenNotes">Notizen / Tagebuch</button></div>
+  <div class="dashboard-grid" id="dashboardAreas"></div>
+  <div class="tiny" style="margin-top:10px">Bedienung: Patientenkachel direkt auf eine Fahrzeugkachel ziehen, um ihn zuzuordnen. Mehrere Patienten pro Fahrzeug sind möglich. Alternativ auf „＋ Patient“ in der Fahrzeugkachel tippen. Fahrzeuge lassen sich weiterhin in Bereiche ziehen.</div>
+ </section>
+
+ <section class="page" id="page-analysis">
+  <div class="print-only" id="printHead"><h1>RD-Einsatzcockpit · Einsatzbericht</h1><p id="printStamp"></p></div>
+  <div class="section-head"><div><h2>Analyse</h2><p>Patientenlage, Transportstatus und Fahrzeuge auf einen Blick.</p></div><div class="dashboard-tools no-print"><button id="backDashboardBtn">← Dashboard</button><button id="snapshotAnalysisBtn">Momentaufnahme ins Tagebuch</button><button class="primary" id="printReportBtn">PDF erstellen / teilen</button></div></div>
+  <div id="analysisContent"></div>
+  <div class="print-only print-extra" id="printExtra"></div>
+  <p class="tiny no-print">Der PDF-Bericht enthält Patientennamen, Transportdaten, Notizen und das komplette Einsatztagebuch. Das PDF wird direkt in der App erzeugt; auf iPad/iPhone danach über das Teilen-Menü „In Dateien sichern“ oder „Drucken“ wählen.</p>
+ </section>
+
+ <section class="page" id="page-archive">
+  <div class="section-head"><div><h2>Einsatzarchiv</h2><p>Vergangene Einsätze lokal sichern und später wieder öffnen.</p></div><button class="primary" id="archiveCurrentBtn">Aktuellen Einsatz archivieren</button></div>
+  <div class="callout">Archivierte Einsätze öffnen standardmäßig schreibgeschützt. Über „Bearbeitung aktivieren“ kann ein archivierter Einsatz gezielt ergänzt werden. Das Archiv liegt nur in diesem Browser auf diesem Gerät.</div>
+  <div id="archiveList" class="list" style="margin-top:12px"></div>
+ </section>
+</main>
+<footer>RD-Einsatzcockpit · lokaler HTML-Prototyp 1.4 · offline im Browser · vor Echtnutzung fachlich und technisch prüfen</footer>
+
+<div class="modal-backdrop" id="modalBackdrop" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+ <div class="modal"><div class="modal-head"><h2 id="modalTitle">Bearbeiten</h2><button id="modalCloseBtn" aria-label="Schließen">✕</button></div><div id="modalBody"></div><div class="modal-foot" id="modalFoot"></div></div>
+</div>
+<input type="file" id="importFileInput" accept=".json,application/json" class="hidden">
+
+<script>
+(() => {
+"use strict";
+const STORAGE_KEY = "rd-einsatzcockpit-prototype-v1";
+const CATS = [
+ {id:"redtp",label:"Rot TP",short:"Rot TP",color:"#9e1018"},
+ {id:"red",label:"Rot",short:"Rot",color:"#ef7777"},
+ {id:"yellow",label:"Gelb",short:"Gelb",color:"#f3cf4e"},
+ {id:"green",label:"Grün",short:"Grün",color:"#58c875"},
+ {id:"white",label:"Weiß",short:"Weiß",color:"#fff"},
+ {id:"black",label:"Schwarz",short:"Schwarz",color:"#252529"},
+ {id:"uncat",label:"Nicht festgelegt",short:"Offen",color:"#c9c9cf"}
+];
+const AREAS = [
+ {id:"ready",name:"Bereitstellung",kind:"fixed"},
+ {id:"triage",name:"Sichtung",kind:"fixed"},
+ {id:"transport",name:"Transport",kind:"fixed"},
+ {id:"care",name:"Versorgung",kind:"fixed"}
+];
+const CALLSIGN_FIRST = ["10","11","12","20","21","23","30","60","66","70","74"];
+const VEHICLES = {"82":"NEF","83":"RTW","85":"KTW","89":"LZ-RTW"};
+const CALLSIGN_PRESETS = ["10-83-01","10-83-02","10-89-01","11-82-01","20-83-01","20-89-01","21-82-01","23-82-01","23-83-01","30-83-01","30-89-01"];
+const $ = id => document.getElementById(id);
+const uid = prefix => `${prefix}_${Date.now().toString(36)}_${Math.random().toString(36).slice(2,7)}`;
+const nowISO = () => new Date().toISOString();
+const fmtDate = value => value ? new Date(value).toLocaleString("de-DE",{dateStyle:"short",timeStyle:"short"}) : "—";
+const fmtDay = value => value ? new Date(value+"T12:00:00").toLocaleDateString("de-DE") : "—";
+const escapeHTML = s => String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const catLabel = id => CATS.find(c=>c.id===id)?.label || "Nicht festgelegt";
+const areaName = id => current().areas.find(a=>a.id===id)?.name || "Unbekannt";
+function blankIncident(){
+ return {id:uid("incident"),metadata:{number:"",date:new Date().toISOString().slice(0,10),address:"",location:"",rdLead:"",lnaLead:""},patients:[],units:[],notes:[],diary:[],areas:AREAS.map(a=>({...a})),createdAt:nowISO(),updatedAt:nowISO(),archived:false,readOnly:false};
+}
+function loadState(){
+ try{
+  const raw=localStorage.getItem(STORAGE_KEY);
+  if(raw){const parsed=JSON.parse(raw);if(parsed&&parsed.current&&Array.isArray(parsed.archive)){return parsed;}}
+ }catch(e){console.warn("Lokale Daten konnten nicht geladen werden",e);}
+ return {current:blankIncident(),archive:[],settings:{lastSaved:null}};
+}
+let state=loadState();
+function ensureShape(incident){
+ incident.metadata ||= {};
+ incident.patients ||= [];incident.units ||= [];incident.notes ||= [];incident.diary ||= [];
+ incident.areas ||= AREAS.map(a=>({...a}));
+ for(const a of AREAS) if(!incident.areas.some(x=>x.id===a.id)) incident.areas.unshift({...a});
+ incident.patients.forEach(p=>{p.category ||= "uncat";p.area ||= "triage";p.transportedAway ||= false;});
+ incident.units.forEach(u=>{u.area ||= "ready";u.released ||= false;u.patientIds=Array.isArray(u.patientIds)?u.patientIds:(u.patientId?[u.patientId]:[]);u.patientId=u.patientIds[0]||null;});
+ incident.patients.forEach(p=>{if(!p.assignedUnitId){const owner=incident.units.find(u=>unitPatientIds(u).includes(p.id));if(owner)p.assignedUnitId=owner.id;}});
+ return incident;
+}
+state.current=ensureShape(state.current);
+function current(){return state.current}
+function canEdit(){return !current().readOnly}
+function unitPatientIds(u){if(!u)return [];if(Array.isArray(u.patientIds))return u.patientIds.filter(Boolean);return u.patientId?[u.patientId]:[];}
+function syncUnitPatients(u, ids){
+ const next=[...new Set((ids||[]).filter(Boolean))];
+ current().patients.forEach(p=>{if(p.assignedUnitId===u.id&&!next.includes(p.id))p.assignedUnitId=null;});
+ next.forEach(pid=>{
+  current().units.forEach(other=>{if(other.id!==u.id){other.patientIds=unitPatientIds(other).filter(x=>x!==pid);other.patientId=other.patientIds[0]||null;}});
+  const p=current().patients.find(x=>x.id===pid);if(p){p.assignedUnitId=u.id;p.area=u.area;p.transportedAway=false;}
+ });
+ u.patientIds=next;u.patientId=next[0]||null;
+}
+function assignPatientToUnit(patientId, unitId){
+ if(!canEdit())return;const p=current().patients.find(x=>x.id===patientId),u=current().units.find(x=>x.id===unitId);
+ if(!p||!u||u.released||p.transportedAway)return;
+ const oldUnit=current().units.find(x=>unitPatientIds(x).includes(p.id));
+ if(oldUnit&&oldUnit.id===u.id)return;
+ if(oldUnit)syncUnitPatients(oldUnit,unitPatientIds(oldUnit).filter(x=>x!==p.id));
+ syncUnitPatients(u,[...unitPatientIds(u),p.id]);p.area=u.area;
+ diary("Patientenzuordnung",`${patientTitle(p)} ${oldUnit?`von ${oldUnit.callsign} `:""}→ ${u.callsign} zugeordnet`,{patientId:p.id,unitId:u.id});
+ renderAll();
+}
+function showAssignPatient(unitId){
+ const u=current().units.find(x=>x.id===unitId);if(!u||!canEdit())return;
+ const assigned=unitPatientIds(u);
+ const candidates=current().patients.filter(p=>!p.transportedAway&&(!p.assignedUnitId||p.assignedUnitId===u.id));
+ openModal(`Patienten zu ${u.callsign} zuordnen`,`<p>Mehrere Patienten können einem Fahrzeug zugeordnet werden. Bereits zugeordnete Patienten sind markiert.</p><div class="assign-list">${candidates.length?candidates.map(p=>`<label class="assign-option"><input type="checkbox" name="assignPatient" value="${p.id}" ${assigned.includes(p.id)?"checked":""} style="width:auto"> <span>${escapeHTML(patientTitle(p))} <small>${escapeHTML(catLabel(p.category))}${p.assignedUnitId&&p.assignedUnitId!==u.id?` · aktuell ${escapeHTML(current().units.find(x=>x.id===p.assignedUnitId)?.callsign||"anderes Fahrzeug")}`:""}</small></span></label>`).join(""):`<div class="empty">Keine freien Patienten vorhanden.</div>`}</div>`,[{label:"Abbrechen",onClick:closeModal},{label:"Zuordnung speichern",className:"primary",onClick:()=>{const ids=[...document.querySelectorAll('input[name="assignPatient"]:checked')].map(x=>x.value);const old=unitPatientIds(u);syncUnitPatients(u,ids);ids.filter(x=>!old.includes(x)).forEach(pid=>{const p=current().patients.find(x=>x.id===pid);if(p)diary("Patientenzuordnung",`${patientTitle(p)} → ${u.callsign} zugeordnet`,{patientId:p.id,unitId:u.id});});old.filter(x=>!ids.includes(x)).forEach(pid=>{const p=current().patients.find(x=>x.id===pid);if(p)diary("Patientenzuordnung",`${patientTitle(p)} von ${u.callsign} abgemeldet`,{patientId:p.id,unitId:u.id});});closeModal();renderAll();}}]);
+}
+function persist(){
+ current().updatedAt=nowISO();
+ try{
+  state.settings.lastSaved=nowISO();
+  localStorage.setItem(STORAGE_KEY,JSON.stringify(state));
+  $("saveStatus").textContent="Lokal gespeichert · "+fmtDate(state.settings.lastSaved);
+ }catch(e){
+  $("saveStatus").textContent="Speichern fehlgeschlagen: Browser-Speicher möglicherweise voll.";
+ }
+ renderHeader();
+}
+function diary(category,description,refs={}){
+ current().diary.unshift({id:uid("evt"),at:nowISO(),category,description,refs});
+ persist();
+}
+function setPage(name){
+ document.querySelectorAll(".tab").forEach(b=>b.classList.toggle("active",b.dataset.page===name || (name==="analysis"&&b.dataset.page==="dashboard")));
+ document.querySelectorAll(".page").forEach(p=>p.classList.toggle("active",p.id==="page-"+name));
+ if(name==="analysis")renderAnalysis();
+ if(name==="dashboard")renderDashboard();
+ if(name==="archive")renderArchive();
+ window.scrollTo({top:0,behavior:"smooth"});
+}
+document.querySelectorAll(".tab").forEach(b=>b.addEventListener("click",()=>setPage(b.dataset.page)));
+function renderHeader(){
+ const m=current().metadata;
+ $("headerSubtitle").textContent=(m.number?m.number+" · ":"")+"Offline-Prototyp · lokal auf diesem Gerät"+(current().readOnly?" · Archiv schreibgeschützt":"");
+ $("currentStatePill").textContent=current().readOnly?"Archiv · schreibgeschützt":(current().archived?"Archiv-Einsatz":"Aktiver Einsatz");
+ $("currentStatePill").className="pill "+(current().readOnly?"":"blue");
+}
+function setMetadataInputs(){
+ const m=current().metadata;
+ for(const [key,id] of Object.entries({number:"incidentNumber",date:"incidentDate",address:"incidentAddress",location:"incidentLocation",rdLead:"rdLead",lnaLead:"lnaLead"})) $(id).value=m[key]||"";
+}
+function readMetadata(){
+ const m=current().metadata;
+ for(const [key,id] of Object.entries({number:"incidentNumber",date:"incidentDate",address:"incidentAddress",location:"incidentLocation",rdLead:"rdLead",lnaLead:"lnaLead"}))m[key]=$(id).value.trim();
+ persist();
+}
+["incidentNumber","incidentDate","incidentAddress","incidentLocation","rdLead","lnaLead"].forEach(id=>$(id).addEventListener("change",()=>{if(!canEdit())return;readMetadata();}));
+$("saveMetadataBtn").addEventListener("click",()=>{if(!canEdit())return;readMetadata();diary("Einsatz","Einsatzstammdaten gespeichert");});
+$("saveNowBtn").addEventListener("click",()=>{persist();});
+function kpi(label,num,sub=""){return `<div class="kpi"><div class="num">${num}</div><div class="cap">${escapeHTML(label)}</div>${sub?`<div class="tiny">${escapeHTML(sub)}</div>`:""}</div>`}
+function counts(){
+ const inc=current(),ps=inc.patients,active=inc.units.filter(u=>!u.released);
+ return {patients:ps.length,active:active.length,transported:ps.filter(p=>p.transportedAway).length,notes:inc.notes.filter(n=>n.status!=="done").length};
+}
+function renderOverview(){
+ const c=counts();
+ $("overviewKpis").innerHTML=kpi("Patienten",c.patients)+kpi("Aktive Fahrzeuge",c.active)+kpi("Abtransportiert",c.transported)+kpi("Offene Notizen",c.notes);
+ renderHeader();
+}
+function categoryClass(cat){return ({redtp:"redtp",red:"red",yellow:"yellow",green:"green",white:"white",black:"black",uncat:"uncat"})[cat]||"uncat"}
+function patientTitle(p){
+ const full=[p.firstName,p.lastName].filter(Boolean).join(" ");
+ return full||p.alias||`Patient ${p.number||"ohne ID"}`;
+}
+function patientSubtitle(p){
+ const parts=[];
+ if(p.birthDate){let age=Math.floor((Date.now()-new Date(p.birthDate+"T12:00:00").getTime())/31557600000);if(age>=0)parts.push(age+" J.");}
+ if(p.gender&&p.gender!=="none")parts.push(({male:"♂",female:"♀",diverse:"⚧"})[p.gender]||"");
+ if(p.area)parts.push(areaName(p.area));
+ if(p.transportedAway)parts.push("Abtransportiert");
+ return parts.filter(Boolean).join(" · ");
+}
+function patientTile(p,withActions=true){
+ const noteMark=p.notes?" 💬":"";
+ return `<div class="person-tile ${categoryClass(p.category)}" draggable="${canEdit()}" data-drag-type="patient" data-id="${p.id}">
+  <div style="min-width:0"><div class="mainline">${escapeHTML(patientTitle(p))}${noteMark}</div><div class="subline">${escapeHTML(catLabel(p.category))}${patientSubtitle(p)?" · "+escapeHTML(patientSubtitle(p)):""}</div></div>
+  ${withActions?`<div class="tile-actions"><button data-action="edit-patient" data-id="${p.id}" title="Bearbeiten">✎</button><button data-action="move-patient" data-id="${p.id}" title="Bereich wählen">↔</button></div>`:""}
+ </div>`;
+}
+function unitTile(u,withActions=true,allowPatientRemoval=withActions){
+ const ids=unitPatientIds(u);const patients=ids.map(id=>current().patients.find(p=>p.id===id)).filter(Boolean);
+ const target=u.area==="transport"?(u.destination||"Ziel offen"):"";
+ return `<div class="unit-tile" draggable="${canEdit()}" data-drag-type="unit" data-id="${u.id}" data-drop-unit="${u.id}">
+  <div class="unit-top"><div><div class="mainline">${escapeHTML(u.callsign||"Funkrufname offen")}</div><div class="subline">${escapeHTML(u.vehicleType||"Fahrzeugtyp offen")} · ${escapeHTML(areaName(u.area))}</div></div><span class="pill ${u.released?"":"blue"}">${u.released?"Entlassen":u.area==="transport"?"Transport":"Aktiv"}</span></div>
+  ${patients.length?`<div class="assigned-patients" style="margin-top:8px"><strong class="subline">Patienten (${patients.length})</strong>${patients.map(p=>`<div class="assigned-patient ${categoryClass(p.category)}"><span>${escapeHTML(patientTitle(p))} · ${escapeHTML(catLabel(p.category))}</span>${allowPatientRemoval?`<button data-action="unassign-patient" data-id="${p.id}" data-unit-id="${u.id}" title="Patient vom Fahrzeug lösen">×</button>`:""}</div>`).join("")}</div>`:`<div class="subline" style="margin-top:7px">Patient hierher ziehen oder über „＋ Patient“ zuordnen</div>`}
+  ${target?`<div class="subline">Ziel: ${escapeHTML(target)}</div>`:""}
+  ${withActions?`<div class="tile-actions" style="margin-top:8px"><button data-action="assign-patient" data-id="${u.id}">＋ Patient</button><button data-action="edit-unit" data-id="${u.id}">✎ Bearbeiten</button><button data-action="move-unit" data-id="${u.id}">↔ Bereich</button></div>`:""}
+ </div>`;
+}
+
+function renderPatients(){
+ const rank={redtp:0,red:1,yellow:2,green:3,white:4,black:5,uncat:6};
+ const ps=[...current().patients].sort((a,b)=>rank[a.category]-rank[b.category]||patientTitle(a).localeCompare(patientTitle(b),"de"));
+ $("patientList").innerHTML=ps.length?ps.map(p=>`<div class="card">${patientTile(p,false)}<div class="quick-row" style="margin-top:9px"><button data-action="edit-patient" data-id="${p.id}">Bearbeiten</button><button data-action="move-patient" data-id="${p.id}">Bereich</button>${p.transportedAway?`<button data-action="reopen-patient" data-id="${p.id}">Zurückholen</button>`:""}</div></div>`).join(""):`<div class="card empty">Noch keine Patienten. Über „＋ Patient“ einen Patienten anlegen.</div>`;
+}
+function renderUnits(){
+ const rank={NEF:0,"LZ-RTW":1,RTW:2,KTW:3};
+ const list=[...current().units].sort((a,b)=>(rank[a.vehicleType]??9)-(rank[b.vehicleType]??9)||String(a.callsign||"").localeCompare(String(b.callsign||""),"de"));
+ $("unitList").innerHTML=list.length?list.map(u=>`<div class="card">${unitTile(u,false,true)}<div class="quick-row" style="margin-top:9px">${u.released?`<button data-action="reactivate-unit" data-id="${u.id}">Reaktivieren</button>`:`<button class="danger" data-action="release-unit" data-id="${u.id}">Entlassen</button>`}</div></div>`).join(""):`<div class="card empty">Noch keine Fahrzeuge. Über „＋ Fahrzeug“ ein Fahrzeug anlegen.</div>`;
+}
+function renderDashboard(){
+ const c=counts();
+ $("dashboardKpis").innerHTML=kpi("Patienten",c.patients)+kpi("Aktive Fahrzeuge",c.active)+kpi("Im Transport",current().units.filter(u=>!u.released&&u.area==="transport").length)+kpi("Abtransportiert",c.transported);
+ const areas=current().areas;
+ const leftAreas=areas.filter(a=>["ready","transport"].includes(a.id)||a.kind==="custom");
+ const rightAreas=areas.filter(a=>["triage","care"].includes(a.id));
+ const renderArea=a=>{
+  const ps=current().patients.filter(p=>!p.transportedAway&&!p.assignedUnitId&&p.area===a.id).sort((x,y)=>CATS.findIndex(c=>c.id===x.category)-CATS.findIndex(c=>c.id===y.category)||patientTitle(x).localeCompare(patientTitle(y),"de"));
+  const us=current().units.filter(u=>!u.released&&u.area===a.id);
+  const extra=a.kind!=="fixed";
+  return `<section class="area" data-area="${a.id}">
+   <div class="area-head"><div><h3>${escapeHTML(a.name)}</h3><div class="count">${ps.length} Patienten · ${us.length} Fahrzeuge</div></div>${extra?`<button class="small" data-action="remove-area" data-id="${a.id}">Entfernen</button>`:""}</div>
+   <div class="area-body" data-drop-area="${a.id}">
+    ${ps.map(p=>patientTile(p)).join("")}${us.map(u=>unitTile(u)).join("")}
+    ${ps.length+us.length===0?`<div class="empty">Hierher ziehen oder über „Bereich“ zuweisen</div>`:""}
+   </div>
+  </section>`;
+ };
+ $("dashboardAreas").innerHTML=`<div class="dashboard-column">${leftAreas.map(renderArea).join("")}</div><div class="dashboard-column">${rightAreas.map(renderArea).join("")}</div>`;
+}
+function renderNotes(){
+ $("standaloneNotes").innerHTML=current().notes.length?current().notes.slice().sort((a,b)=>(b.createdAt||"").localeCompare(a.createdAt||"")).map(n=>`<div class="note-row">
+  <div class="note-head"><span class="note-date">${fmtDate(n.createdAt)}</span><button class="note-edit" data-action="edit-note" data-id="${n.id}" title="Notiz bearbeiten oder löschen" aria-label="Notiz bearbeiten oder löschen">✎</button></div>
+  <p>${escapeHTML(n.text)}</p>
+ </div>`).join(""):`<div class="card empty">Noch keine Einzelnotizen.</div>`;
+ const cats=[...new Set(current().diary.map(e=>e.category))].sort();
+ $("diaryCategoryFilter").innerHTML='<option value="">Alle Kategorien</option>'+cats.map(c=>`<option>${escapeHTML(c)}</option>`).join("");
+ const q=$("diarySearch").value.trim().toLowerCase(),cat=$("diaryCategoryFilter").value,date=$("diaryDateFilter").value;
+ const events=current().diary.filter(e=>(!cat||e.category===cat)&&(!date||e.at.slice(0,10)===date)&&(!q||(e.description+" "+e.category).toLowerCase().includes(q)));
+ $("diaryList").innerHTML=events.length?events.map(e=>`<div class="diary-row"><div class="diary-time">${fmtDate(e.at)}</div><div><div class="category">${escapeHTML(e.category)}</div><p>${escapeHTML(e.description)}</p>${e.refs&&e.refs.snapshot?`<div class="snapshot-row"><strong>Momentaufnahme der Analyse</strong><div class="tiny">${Object.entries(e.refs.snapshot.byCategory||{}).map(([k,v])=>`${escapeHTML(k)}: ${v.gesamt} gesamt, ${v.abtransportiert} abtransportiert, ${v.vorOrt} vor Ort`).join(" · ")}</div><div class="tiny">Aktive Fahrzeuge: ${(e.refs.snapshot.activeUnits||[]).map(u=>escapeHTML(u.callsign)+" ("+escapeHTML(u.type)+", "+escapeHTML(u.area)+")").join(", ")||"Keine"}</div></div>`:""}</div></div>`).join(""):`<div class="empty">Keine Tagebucheinträge für diesen Filter.</div>`;
+}
+function renderAnalysis(){
+ const inc=current(),ps=inc.patients,active=inc.units.filter(u=>!u.released),transportUnits=active.filter(u=>u.area==="transport");
+ const catRows=CATS.map(cat=>{
+  const members=ps.filter(p=>p.category===cat.id),gone=members.filter(p=>p.transportedAway).length,remaining=members.length-gone;
+  const width=ps.length?members.length/ps.length*100:0;
+  return `<div class="category-count"><strong>${cat.label}</strong><div><div class="bar"><span style="width:${width}%;background:${cat.color};${cat.id==="white"?"border:1px solid #bbb":""}"></span></div><div class="tiny">${members.length} gesamt · ${gone} abtransportiert · ${remaining} vor Ort</div></div><strong style="text-align:right">${members.length}</strong></div>`;
+ }).join("");
+ const areaRows=inc.areas.map(a=>`<div class="list-row"><div class="grow"><strong>${escapeHTML(a.name)}</strong><p>${active.filter(u=>u.area===a.id).length} Fahrzeuge</p></div><span class="pill">${active.filter(u=>u.area===a.id).length}</span></div>`).join("");
+ const unitsByType=["NEF","RTW","KTW","LZ-RTW"].map(type=>`<div class="list-row"><div class="grow"><strong>${type}</strong><p>${active.filter(u=>u.vehicleType===type).length} aktiv</p></div><span class="pill">${active.filter(u=>u.vehicleType===type).length}</span></div>`).join("");
+ $("analysisContent").innerHTML=`
+ <div class="card"><h3>Einsatzdaten</h3><div class="grid two">
+  <div><label>Einsatznummer</label><strong>${escapeHTML(inc.metadata.number||"Nicht eingetragen")}</strong></div>
+  <div><label>Datum</label><strong>${fmtDay(inc.metadata.date)}</strong></div>
+  <div><label>Adresse / Ort</label><strong>${escapeHTML(inc.metadata.address||"Nicht eingetragen")}</strong></div>
+  <div><label>R-Dienst / LNA</label><strong>${escapeHTML(inc.metadata.rdLead||"—")} / ${escapeHTML(inc.metadata.lnaLead||"—")}</strong></div>
+ </div></div>
+ <div class="kpi-grid" style="margin-top:12px">${kpi("Patienten gesamt",ps.length)}${kpi("Aktive Fahrzeuge",active.length)}${kpi("Aktive Transporte",transportUnits.length)}${kpi("Abtransportiert",ps.filter(p=>p.transportedAway).length)}</div>
+ <div class="grid two" style="margin-top:12px">
+  <div class="card"><h3>Patienten nach Sichtung</h3><div class="category-counts">${catRows}</div></div>
+  <div class="card"><h3>Fahrzeuge nach Bereich</h3><div class="list">${areaRows}</div><hr><h3>Aktive Fahrzeuge nach Fahrzeugkategorie</h3><div class="list">${unitsByType}</div></div>
+ </div>
+ <div class="card" style="margin-top:12px"><h3>Aktive Transporte</h3>
+  ${transportUnits.length?`<div class="table-wrap"><table><thead><tr><th>Funkrufname</th><th>Fahrzeug</th><th>Patient zugeordnet</th><th>Transportziel</th></tr></thead><tbody>${transportUnits.map(u=>{const assigned=unitPatientIds(u).map(pid=>ps.find(x=>x.id===pid)).filter(Boolean);return `<tr><td>${escapeHTML(u.callsign)}</td><td>${escapeHTML(u.vehicleType)}</td><td>${assigned.length?`${assigned.length} Patient(en) zugeordnet`:"Kein Patient zugeordnet"}</td><td>${escapeHTML(u.destination||"Offen")}</td></tr>`}).join("")}</tbody></table></div>`:`<div class="empty">Aktuell keine Fahrzeuge im Transportbereich.</div>`}
+ </div>`;
+}
+function renderArchive(){
+ $("archiveList").innerHTML=state.archive.length?state.archive.slice().sort((a,b)=>(b.archivedAt||b.updatedAt||"").localeCompare(a.archivedAt||a.updatedAt||"")).map(a=>`<div class="card"><div class="list-row" style="background:transparent;padding:0"><div class="grow"><strong>${escapeHTML(a.snapshot.metadata.number||"Einsatz ohne Nummer")}</strong><p>${escapeHTML(a.snapshot.metadata.address||"Keine Adresse")} · Datum ${fmtDay(a.snapshot.metadata.date)}</p><p>Archiviert: ${fmtDate(a.archivedAt)} · ${a.snapshot.patients.length} Patienten · ${a.snapshot.units.length} Kräfte</p></div><span class="pill">${a.snapshot.readOnly?"Archiv":"Gespeichert"}</span></div><div class="quick-row" style="margin-top:12px"><button class="primary" data-action="open-archive" data-id="${a.id}">Öffnen (schreibgeschützt)</button><button data-action="export-archive" data-id="${a.id}">JSON exportieren</button><button class="danger" data-action="delete-archive" data-id="${a.id}">Löschen</button></div></div>`).join(""):`<div class="card empty">Noch keine archivierten Einsätze. Du kannst den aktuellen Einsatz hier archivieren.</div>`;
+}
+function renderAll(){
+ // Each view is refreshed independently so one malformed legacy record cannot
+ // prevent patient/vehicle tiles from being shown.
+ try{setMetadataInputs();}catch(e){console.error("Metadaten rendern",e)}
+ try{renderOverview();}catch(e){console.error("Übersicht rendern",e)}
+ try{renderPatients();}catch(e){console.error("Patientenkacheln rendern",e);$("patientList").innerHTML='<div class="card empty">Patienten konnten nicht dargestellt werden. Bitte Einsatz exportieren und Support kontaktieren.</div>';}
+ try{renderUnits();}catch(e){console.error("Fahrzeugekacheln rendern",e);$("unitList").innerHTML='<div class="card empty">Fahrzeuge konnten nicht dargestellt werden. Bitte Einsatz exportieren und Support kontaktieren.</div>';}
+ try{renderNotes();}catch(e){console.error("Notizen rendern",e)}
+ try{renderDashboard();}catch(e){console.error("Dashboard rendern",e)}
+ try{renderAnalysis();}catch(e){console.error("Analyse rendern",e)}
+ try{renderArchive();}catch(e){console.error("Archiv rendern",e)}
+ try{$("quickNoteText").value=current().quickNote||"";lockUI();}catch(e){console.error("UI aktualisieren",e)}
+}
+function lockUI(){
+ const ro=!canEdit();
+ document.querySelectorAll("#page-overview input,#page-overview button,#page-patients input,#page-patients select,#page-patients button,#page-units input,#page-units select,#page-units button,#page-notes textarea,#page-notes button,#page-dashboard button,#addAreaBtn").forEach(el=>{
+  if(el.id==="printReportBtn")return;
+  el.disabled=ro;
+ });
+ $("currentStatePill").textContent=ro?"Archiv · schreibgeschützt":(current().archived?"Archiv-Einsatz":"Aktiver Einsatz");
+}
+function openModal(title,body,buttons=[]){
+ $("modalTitle").textContent=title;$("modalBody").innerHTML=body;
+ $("modalFoot").innerHTML="";
+ buttons.forEach(b=>{const el=document.createElement("button");el.textContent=b.label;el.className=b.className||"";el.addEventListener("click",b.onClick);$("modalFoot").appendChild(el)});
+ $("modalBackdrop").classList.add("open");
+}
+function closeModal(){$("modalBackdrop").classList.remove("open");$("modalBody").innerHTML="";}
+$("modalCloseBtn").addEventListener("click",closeModal);
+$("modalBackdrop").addEventListener("click",e=>{if(e.target===$("modalBackdrop"))closeModal()});
+function field(id,label,value="",type="text",placeholder=""){
+ return `<div class="field"><label for="${id}">${label}</label><input id="${id}" type="${type}" value="${escapeHTML(value)}" placeholder="${escapeHTML(placeholder)}"></div>`;
+}
+function textareaField(id,label,value="",placeholder=""){
+ return `<div class="field"><label for="${id}">${label}</label><textarea id="${id}" placeholder="${escapeHTML(placeholder)}">${escapeHTML(value)}</textarea></div>`;
+}
+function selectField(id,label,options,value){
+ return `<div class="field"><label for="${id}">${label}</label><select id="${id}">${options.map(o=>`<option value="${escapeHTML(o.value)}" ${o.value===value?"selected":""}>${escapeHTML(o.label)}</option>`).join("")}</select></div>`;
+}
+function showPatientForm(id=null){
+ if(!canEdit())return;
+ const p=id?current().patients.find(x=>x.id===id):{gender:"none",category:"uncat",area:"triage",transportedAway:false,firstName:"",lastName:"",birthDate:"",address:"",notes:"",alias:""};
+ const isNew=!id;
+ const genderButtons=[["male","Männlich"],["female","Weiblich"],["diverse","Divers"],["none","Keine Angabe"]];
+ const areas=current().areas.map(a=>({value:a.id,label:a.name}));
+ openModal(isNew?"Patient anlegen":"Patient bearbeiten",`
+ <div class="grid two">
+  ${field("pFirst","Vorname",p.firstName)}
+  ${field("pLast","Nachname",p.lastName)}
+  ${field("pBirth","Geburtsdatum",p.birthDate,"date")}
+  ${field("pAddress","Adresse (optional)",p.address)}
+ </div>
+ <div class="field" style="margin-top:12px"><label>Geschlecht</label><div class="segmented" id="genderChoices">${genderButtons.map(([v,l])=>`<button type="button" data-gender="${v}" class="${p.gender===v?"selected":""}">${l}</button>`).join("")}</div></div>
+ <div class="grid two" style="margin-top:12px">
+  ${selectField("pCategory","Sichtungskategorie",CATS.map(c=>({value:c.id,label:c.label})),p.category||"uncat")}
+  ${selectField("pArea","Aktueller Bereich",areas,p.area||"triage")}
+ </div>
+ <div style="margin-top:12px">${textareaField("pNotes","Freitextnotizen / Verletzungsmuster",p.notes,"Nur im lokalen Einsatzdatensatz; nicht im PDF-Bericht.")}</div>
+ ${id?`<div class="field" style="margin-top:10px"><label><input id="pTransported" type="checkbox" style="width:auto;margin-right:8px" ${p.transportedAway?"checked":""}>Abtransport abgeschlossen</label></div>`:""}
+ `,[{label:"Abbrechen",onClick:closeModal},{label:isNew?"Patient anlegen":"Änderungen speichern",className:"primary",onClick:()=>{
+  const data={firstName:$("pFirst").value.trim(),lastName:$("pLast").value.trim(),birthDate:$("pBirth").value,address:$("pAddress").value.trim(),category:$("pCategory").value,area:$("pArea").value,notes:$("pNotes").value.trim()};
+  data.gender=document.querySelector("#genderChoices button.selected")?.dataset.gender||"none";
+  if(isNew){const np={id:uid("patient"),number:String(current().patients.length+1).padStart(3,"0"),...data,transportedAway:false,createdAt:nowISO(),updatedAt:nowISO()};current().patients.push(np);diary("Patient angelegt",`Patient ${patientTitle(np)} angelegt`,{patientId:np.id});}
+  else{
+   const old={...p};Object.assign(p,data);p.transportedAway=$("pTransported")?.checked??p.transportedAway;p.updatedAt=nowISO();
+   if(old.category!==p.category)diary("Sichtungskategorie",`${patientTitle(p)}: ${catLabel(old.category)} → ${catLabel(p.category)}`,{patientId:p.id});
+   if(old.area!==p.area)diary("Patientenbewegung",`${patientTitle(p)}: ${areaName(old.area)} → ${areaName(p.area)}`,{patientId:p.id});
+   diary("Patient geändert",`Stammdaten von ${patientTitle(p)} geändert`,{patientId:p.id});
+  }
+  closeModal();renderAll();renderPatients();renderDashboard();renderAnalysis();
+ }}]);
+ $("genderChoices").querySelectorAll("button").forEach(b=>b.addEventListener("click",()=>{$("genderChoices").querySelectorAll("button").forEach(x=>x.classList.toggle("selected",x===b))}));
+}
+function inferVehicle(callsign){
+ const parts=(callsign||"").split("-");
+ return parts.length===3?(VEHICLES[parts[1]]||"Unbekannt"):"Unbekannt";
+}
+function showUnitForm(id=null){
+ if(!canEdit())return;
+ const u=id?current().units.find(x=>x.id===id):{callsign:"",vehicleType:"",area:"ready",destination:"",patientId:"",notes:"",released:false};
+ const isNew=!id;
+ const areas=current().areas.map(a=>({value:a.id,label:a.name}));
+ openModal(isNew?"Fahrzeug anlegen":"Fahrzeug bearbeiten",`
+  <div class="field"><label>Funkrufname schnell auswählen</label><div class="preset-grid">${CALLSIGN_PRESETS.map(c=>`<button type="button" class="preset-call ${u.callsign===c?"selected":""}" data-preset-callsign="${c}">${c}</button>`).join("")}</div>
+   <details style="margin-top:10px"><summary>Andere Nummer zusammenstellen</summary><div class="grid three" style="margin-top:10px">
+    ${selectField("uFirst","Erster Block",[{value:"",label:"— wählen —"},...CALLSIGN_FIRST.map(x=>({value:x,label:x}))],(u.callsign||"").split("-")[0]||"")}
+    ${selectField("uMiddle","Fahrzeugblock",[{value:"",label:"— wählen —"},...Object.keys(VEHICLES).map(x=>({value:x,label:x+" · "+VEHICLES[x]}))],(u.callsign||"").split("-")[1]||"")}
+    ${selectField("uLast","Letzter Block",[{value:"",label:"— wählen —"},...Array.from({length:20},(_,i)=>String(i+1).padStart(2,"0")).map(x=>({value:x,label:x}))],(u.callsign||"").split("-")[2]||"")}
+   </div></details>
+  </div>
+  <div style="margin-top:10px">${field("uCallsign","Oder Funkrufname manuell eingeben",u.callsign,"text","z. B. 11-82-01")}</div>
+  <div class="grid two" style="margin-top:12px">
+   ${selectField("uArea","Einsatzbereich",areas,u.area||"ready")}
+   <div class="field"><label>Patienten im Fahrzeug</label><select id="uPatients" multiple size="4">${current().patients.filter(p=>!p.transportedAway&&(!p.assignedUnitId||p.assignedUnitId===id)).map(p=>`<option value="${p.id}" ${unitPatientIds(u).includes(p.id)?"selected":""}>${escapeHTML(patientTitle(p))} · ${escapeHTML(catLabel(p.category))}</option>`).join("")}</select><p class="tiny">Mehrere Patienten mit Strg (Computer) bzw. Mehrfachauswahl auswählen; einfacher geht es per Drag & Drop oder „＋ Patient“.</p></div>
+  </div>
+  <div class="grid two" style="margin-top:12px">
+   ${field("uDestination","Transportziel",u.destination||"","text","UKSH, StKH, Lubinus oder anderes")}
+   ${field("uNotes","Interne Notiz",u.notes||"")}
+  </div>
+  <p class="tiny">Fahrzeugtyp wird automatisch aus dem mittleren Block erkannt: 82 = NEF, 83 = RTW, 85 = KTW, 89 = LZ-RTW.</p>
+ `,[{label:"Abbrechen",onClick:closeModal},...(isNew?[]:[{label:"Aus Einsatz entlassen",className:"danger",onClick:()=>{const live=current().units.find(x=>x.id===id);if(!live)return;if(unitPatientIds(live).length){alert("Bitte zuerst alle Patienten über das × auf der Fahrzeugkachel vom Fahrzeug lösen.");return;}if(!confirm(`${live.callsign} aus dem Einsatz entlassen?`))return;live.released=true;diary("Fahrzeug",`${live.callsign} aus dem Einsatz entlassen`,{unitId:live.id});closeModal();renderAll();}}]),{label:isNew?"Fahrzeug anlegen":"Speichern",className:"primary",onClick:()=>{
+  const quickParts=[$("uFirst").value,$("uMiddle").value,$("uLast").value];
+  const callsign=$("uCallsign").value.trim()||(quickParts.every(Boolean)?quickParts.join("-"):"");
+  if(!callsign){alert("Bitte einen Funkrufnamen manuell eingeben oder alle drei Blöcke auswählen.");return;}
+  const duplicate=current().units.find(x=>!x.released&&x.id!==id&&String(x.callsign||"").trim().toLowerCase()===callsign.trim().toLowerCase());
+  if(duplicate){alert(`Der Funkrufname ${callsign} ist bereits im Einsatz (${duplicate.callsign}). Ein Fahrzeug darf nur einmal aktiv angelegt sein.`);return;}
+  const selectedPatientIds=[...$("uPatients").selectedOptions].map(o=>o.value);
+  const data={callsign,vehicleType:inferVehicle(callsign),area:$("uArea").value,patientIds:selectedPatientIds,patientId:selectedPatientIds[0]||null,destination:$("uDestination").value.trim(),notes:$("uNotes").value.trim()};
+  if(isNew){const nu={id:uid("unit"),...data,released:false,createdAt:nowISO()};current().units.push(nu);syncUnitPatients(nu,selectedPatientIds);diary("Fahrzeug",`Fahrzeug ${callsign||"(ohne Funkrufname)"} angelegt`,{unitId:nu.id});}
+  else{
+   const oldArea=u.area,oldPatients=unitPatientIds(u),oldCall=u.callsign;Object.assign(u,data);syncUnitPatients(u,selectedPatientIds);
+   if(oldArea!==u.area){unitPatientIds(u).forEach(pid=>{const p=current().patients.find(x=>x.id===pid);if(p)p.area=u.area;});diary("Fahrzeug",`${u.callsign}: ${areaName(oldArea)} → ${areaName(u.area)}`,{unitId:u.id});}
+   if(oldPatients.join(",")!==selectedPatientIds.join(","))diary("Patientenzuordnung",`Patientenzuordnung für ${u.callsign} geändert`,{unitId:u.id,patientIds:selectedPatientIds});
+   if(oldCall!==u.callsign)diary("Fahrzeug",`Funkrufname geändert: ${oldCall} → ${u.callsign}`,{unitId:u.id});
+   persist();
+  }
+  if(data.area==="transport"&&!data.destination){closeModal();showTransportTarget(u?.id||current().units.at(-1)?.id);return;}
+  closeModal();renderAll();renderUnits();renderDashboard();renderAnalysis();
+ }}]);
+ document.querySelectorAll("[data-preset-callsign]").forEach(b=>b.addEventListener("click",()=>{const c=b.dataset.presetCallsign;$("uCallsign").value=c;const parts=c.split("-");$("uFirst").value=parts[0];$("uMiddle").value=parts[1];$("uLast").value=parts[2];document.querySelectorAll("[data-preset-callsign]").forEach(x=>x.classList.toggle("selected",x===b));}));
+ ["uFirst","uMiddle","uLast"].forEach(id=>$(id).addEventListener("change",()=>{
+  const call=[$("uFirst").value,$("uMiddle").value,$("uLast").value];
+  if(call.every(Boolean))$("uCallsign").value=call.join("-");
+ }));
+}
+function showMovePatient(id){
+ if(!canEdit())return;const p=current().patients.find(x=>x.id===id);if(!p)return;
+ openModal("Patient verschieben",`<p>Neuen Bereich für <strong>${escapeHTML(patientTitle(p))}</strong> auswählen.</p>${selectField("movePatientArea","Bereich",current().areas.map(a=>({value:a.id,label:a.name})),p.area)}`,[{label:"Abbrechen",onClick:closeModal},{label:"Verschieben",className:"primary",onClick:()=>{const old=p.area;p.area=$("movePatientArea").value;p.transportedAway=false;diary("Patientenbewegung",`${patientTitle(p)}: ${areaName(old)} → ${areaName(p.area)}`,{patientId:p.id});closeModal();renderAll();}}]);
+}
+function showMoveUnit(id){
+ if(!canEdit())return;const u=current().units.find(x=>x.id===id);if(!u)return;
+ openModal("Fahrzeug verschieben",`<p><strong>${escapeHTML(u.callsign)}</strong> in welchen Bereich verschieben?</p>${selectField("moveUnitArea","Bereich",current().areas.map(a=>({value:a.id,label:a.name})),u.area)}`,[{label:"Abbrechen",onClick:closeModal},{label:"Verschieben",className:"primary",onClick:()=>{const target=$("moveUnitArea").value;closeModal();moveUnitTo(u.id,target);}}]);
+}
+function showTransportTarget(unitId){
+ const u=current().units.find(x=>x.id===unitId);if(!u)return;
+ openModal("Transportziel auswählen",`<p>Transportziel für <strong>${escapeHTML(u.callsign)}</strong></p><div class="segmented" id="targetChoices">${["UKSH","StKH","Lubinus","Andere"].map(t=>`<button type="button" data-target="${t}" class="${u.destination===t?"selected":""}">${t}</button>`).join("")}</div><div id="otherTargetWrap" style="margin-top:12px">${field("otherTarget","Anderes Transportziel",u.destination&&!["UKSH","StKH","Lubinus"].includes(u.destination)?u.destination:"","text","Ziel eintragen")}</div>`,[{label:"Abbrechen",onClick:closeModal},{label:"Ziel speichern",className:"primary",onClick:()=>{const selected=document.querySelector("#targetChoices button.selected")?.dataset.target;const dest=selected==="Andere"?$("otherTarget").value.trim():selected;if(!dest){alert("Bitte ein Transportziel auswählen oder eingeben.");return;}const old=u.destination;u.destination=dest;unitPatientIds(u).forEach(pid=>{const q=current().patients.find(x=>x.id===pid);if(q&&q.transportedAway)q.transport={...(q.transport||{}),unitId:u.id,callsign:u.callsign,destination:dest};});diary("Transport",`${u.callsign}: Transportziel ${old||"offen"} → ${dest}`,{unitId:u.id});closeModal();renderAll();}}]);
+ $("targetChoices").querySelectorAll("button").forEach(b=>b.addEventListener("click",()=>{$("targetChoices").querySelectorAll("button").forEach(x=>x.classList.toggle("selected",x===b));$("otherTargetWrap").classList.toggle("hidden",b.dataset.target!=="Andere")}));
+ $("otherTargetWrap").classList.toggle("hidden",!!u.destination&&["UKSH","StKH","Lubinus"].includes(u.destination));
+}
+function moveUnitTo(id,target){
+ if(!canEdit())return;const u=current().units.find(x=>x.id===id);if(!u)return;
+ if(target==="transport"&&!unitPatientIds(u).length){
+  openModal("Achtung: Kein Patient angelegt",`<p>Für <strong>${escapeHTML(u.callsign)}</strong> ist kein Patient zugeordnet. Trotzdem in den Transportbereich verschieben?</p>`,[{label:"Abbrechen",onClick:closeModal},{label:"Ja, verschieben",className:"primary",onClick:()=>{const old=u.area;u.area=target;diary("Transport",`${u.callsign}: ${areaName(old)} → Transport ohne Patient`,{unitId:u.id});closeModal();showTransportTarget(u.id);renderAll();}}]);
+  return;
+ }
+ const old=u.area;u.area=target;
+ unitPatientIds(u).forEach(pid=>{const assigned=current().patients.find(x=>x.id===pid);if(assigned)assigned.area=target;});
+ if(target==="transport"){
+  const patientIds=unitPatientIds(u);
+  patientIds.forEach(pid=>{const p=current().patients.find(x=>x.id===pid);if(p){p.area="transport";if(!p.transportedAway){p.transportedAway=true;p.transport={unitId:u.id,callsign:u.callsign,destination:u.destination||"",at:nowISO()};diary("Transport",`Abtransport erfasst: ${patientTitle(p)} (${catLabel(p.category)}) mit ${u.callsign}`,{patientId:p.id,unitId:u.id});}}});
+  diary("Transport",`${u.callsign}: in Transport verschoben (${patientIds.length} Patienten; Abtransport automatisch erfasst)`,{unitId:u.id,patientIds});
+  persist();showTransportTarget(u.id);renderAll();return;
+ }
+ diary("Fahrzeug",`${u.callsign}: ${areaName(old)} → ${areaName(target)}`,{unitId:u.id});
+ renderAll();
+}
+function addArea(){
+ if(!canEdit())return;
+ openModal("Bereich hinzufügen",`${field("newAreaName","Name des neuen Bereichs","","text","z. B. Patientenablage, Feuerwehr, Behandlungsplatz")}`,[{label:"Abbrechen",onClick:closeModal},{label:"Bereich hinzufügen",className:"primary",onClick:()=>{const name=$("newAreaName").value.trim();if(!name)return;if(current().areas.some(a=>a.name.toLowerCase()===name.toLowerCase())){alert("Dieser Bereich existiert bereits.");return;}const a={id:uid("area"),name,kind:"custom"};current().areas.push(a);diary("Bereich",`Bereich „${name}“ hinzugefügt`);closeModal();renderAll();}}]);
+}
+function removeArea(id){
+ const a=current().areas.find(x=>x.id===id);if(!a||a.kind==="fixed")return;
+ if(!confirm(`Bereich „${a.name}“ entfernen? Zugeordnete Patienten und Fahrzeuge werden nach Bereitstellung verschoben.`))return;
+ current().patients.filter(p=>p.area===id).forEach(p=>{p.area="ready";diary("Patientenbewegung",`${patientTitle(p)}: ${a.name} → Bereitstellung`,{patientId:p.id});});
+ current().units.filter(u=>u.area===id).forEach(u=>{u.area="ready";diary("Fahrzeug",`${u.callsign}: ${a.name} → Bereitstellung`,{unitId:u.id});});
+ current().areas=current().areas.filter(x=>x.id!==id);diary("Bereich",`Bereich „${a.name}“ entfernt`);renderAll();
+}
+function completeTransport(id){
+ const u=current().units.find(x=>x.id===id);if(!u||!canEdit())return;
+ const ids=unitPatientIds(u);if(!ids.length){alert("Für dieses Fahrzeug ist kein Patient zugeordnet.");return;}
+ const patients=ids.map(pid=>current().patients.find(x=>x.id===pid)).filter(Boolean);
+ if(!confirm(`Abtransport von ${patients.length} Patient(en) mit ${u.callsign} als abgeschlossen markieren?`))return;
+ patients.forEach(p=>{p.transportedAway=true;p.area="transport";p.assignedUnitId=null;p.transport={unitId:u.id,callsign:u.callsign,destination:u.destination||(p.transport&&p.transport.destination)||"",at:(p.transport&&p.transport.at)||nowISO()};diary("Transport",`Abtransport abgeschlossen: ${patientTitle(p)} (${catLabel(p.category)})`,{patientId:p.id,unitId:u.id});});
+ u.patientIds=[];u.patientId=null;u.area="ready";u.destination="";
+ renderAll();
+}
+
+function showStandaloneNote(id=null){
+ if(!canEdit())return;
+ const n=id?current().notes.find(x=>x.id===id):{text:"",createdAt:nowISO()};
+ if(id&&!n)return;
+ const buttons=[{label:"Abbrechen",onClick:closeModal}];
+ if(id) buttons.push({label:"Notiz löschen",className:"danger",onClick:()=>{
+  if(!confirm("Diese Notiz endgültig löschen?"))return;
+  const text=n.text;
+  current().notes=current().notes.filter(x=>x.id!==id);
+  diary("Notiz",`Notiz gelöscht: ${text.slice(0,80)}`);
+  closeModal();renderAll();
+ }});
+ buttons.push({label:id?"Speichern":"Notiz anlegen",className:"primary",onClick:()=>{
+  const text=$("noteText").value.trim();
+  if(!text){alert("Bitte einen Notiztext eingeben.");return;}
+  if(id){n.text=text;n.updatedAt=nowISO();diary("Notiz",`Notiz geändert: ${text.slice(0,80)}`);}
+  else{current().notes.push({id:uid("note"),text,createdAt:nowISO(),updatedAt:nowISO()});diary("Notiz",`Notiz erstellt: ${text.slice(0,80)}`);}
+  closeModal();renderAll();
+ }});
+ openModal(id?"Notiz bearbeiten":"Neue Notiz",`${textareaField("noteText","Notiz",n.text,"Notiztext")}`,buttons);
+}
+function addManualDiary(){
+ if(!canEdit())return;
+ openModal("Manueller Tagebucheintrag",`${textareaField("manualDiaryText","Eintrag","","Was soll dokumentiert werden?")}`,[{label:"Abbrechen",onClick:closeModal},{label:"Eintrag speichern",className:"primary",onClick:()=>{const text=$("manualDiaryText").value.trim();if(!text)return;diary("Manueller Eintrag",text);closeModal();renderAll();}}]);
+}
+function archiveCurrent(){
+ if(!canEdit())return;
+ if(!confirm("Aktuellen Einsatz archivieren? Er wird als abgeschlossener Einsatz im Archiv abgelegt."))return;
+ const snapshot=JSON.parse(JSON.stringify(current()));snapshot.archived=true;snapshot.readOnly=true;
+ state.archive.push({id:uid("archive"),archivedAt:nowISO(),snapshot});
+ state.current=blankIncident();persist();renderAll();setPage("patients");
+}
+function openArchived(id){
+ const entry=state.archive.find(a=>a.id===id);if(!entry)return;
+ if(!confirm("Archivierten Einsatz schreibgeschützt öffnen? Der aktuelle Einsatz wird vorher im Archiv gesichert."))return;
+ if(!current().readOnly){const backup=JSON.parse(JSON.stringify(current()));backup.archived=true;backup.readOnly=true;state.archive.push({id:uid("archive"),archivedAt:nowISO(),snapshot:backup});}
+ state.current=ensureShape(JSON.parse(JSON.stringify(entry.snapshot)));state.current.readOnly=true;state.current.archived=true;persist();renderAll();setPage("patients");
+ openModal("Archiv-Einsatz geöffnet",`<p>Dieser Einsatz ist <strong>schreibgeschützt</strong>. Du kannst ihn ansehen, analysieren oder exportieren.</p><p>Wenn du Daten ergänzen möchtest, aktiviere die Bearbeitung ausdrücklich.</p>`,[{label:"Schließen",onClick:closeModal},{label:"Bearbeitung aktivieren",className:"primary",onClick:()=>{state.current.readOnly=false;state.current.archived=true;diary("Einsatz","Bearbeitung eines archivierten Einsatzes ausdrücklich aktiviert");closeModal();renderAll();}}]);
+}
+function deleteArchive(id){
+ const entry=state.archive.find(a=>a.id===id);if(!entry)return;
+ const confirmText=prompt(`Sicherheitsabfrage: Zum endgültigen Löschen die Einsatznummer eingeben:\n${entry.snapshot.metadata.number||"OHNE NUMMER"}`);
+ if(confirmText===null)return;
+ if(confirmText!==(entry.snapshot.metadata.number||"OHNE NUMMER")){alert("Eingabe stimmt nicht überein. Einsatz wurde nicht gelöscht.");return;}
+ state.archive=state.archive.filter(a=>a.id!==id);persist();renderArchive();
+}
+function downloadJSON(data,filename){
+ const blob=new Blob([JSON.stringify(data,null,2)],{type:"application/json"});
+ const url=URL.createObjectURL(blob);const a=document.createElement("a");a.href=url;a.download=filename;a.click();setTimeout(()=>URL.revokeObjectURL(url),1500);
+}
+function exportCurrent(){
+ const snapshot=JSON.parse(JSON.stringify(current()));
+ downloadJSON({format:"rd-einsatzcockpit",version:1,exportedAt:nowISO(),incident:snapshot},`RD-Einsatz-${(snapshot.metadata.number||"Export").replace(/[^a-z0-9-_]/gi,"_")}.json`);
+}
+function exportArchive(id){
+ const entry=state.archive.find(a=>a.id===id);if(!entry)return;
+ downloadJSON({format:"rd-einsatzcockpit",version:1,exportedAt:nowISO(),incident:entry.snapshot},`RD-Einsatz-Archiv-${(entry.snapshot.metadata.number||"Export").replace(/[^a-z0-9-_]/gi,"_")}.json`);
+}
+function importFile(file){
+ if(!file)return;
+ const reader=new FileReader();
+ reader.onload=()=>{
+  try{
+   const obj=JSON.parse(reader.result);let inc=obj.incident||obj;
+   if(!inc||typeof inc!=="object")throw new Error("Dateistruktur unvollständig");
+   // Accept a valid exported incident even if older versions omitted optional collections.
+   inc=JSON.parse(JSON.stringify(inc));inc.metadata=inc.metadata&&typeof inc.metadata==="object"?inc.metadata:{};
+   inc.patients=Array.isArray(inc.patients)?inc.patients:[];inc.units=Array.isArray(inc.units)?inc.units:[];inc.notes=Array.isArray(inc.notes)?inc.notes:[];inc.diary=Array.isArray(inc.diary)?inc.diary:[];inc.areas=Array.isArray(inc.areas)?inc.areas:AREAS.map(a=>({...a}));
+   if(!inc.metadata||!Array.isArray(inc.patients)||!Array.isArray(inc.units))throw new Error("Dateistruktur unvollständig");
+   if(!confirm(`JSON-Einsatz importieren?\nEinsatznummer: ${inc.metadata.number||"ohne Nummer"}\nPatienten: ${inc.patients.length}\nFahrzeuge: ${inc.units.length}\n\nDer aktuell geöffnete Einsatz wird zuvor im Archiv gesichert.`))return;
+   const backup=JSON.parse(JSON.stringify(current()));backup.readOnly=true;backup.archived=true;
+   state.archive.push({id:uid("archive"),archivedAt:nowISO(),snapshot:backup});
+   state.current=ensureShape(inc);state.current.readOnly=false;state.current.archived=false;
+   diary("Einsatz",`Einsatz aus JSON importiert (${inc.metadata.number||"ohne Nummer"})`);
+   renderAll();setPage("patients");alert("Import abgeschlossen.");
+  }catch(e){alert("Import nicht möglich: Die Datei ist kein gültiger RD-Einsatzcockpit-Export.");}
+ };
+ reader.readAsText(file);
+}
+function quickNoteAdopt(){
+ if(!canEdit())return;const text=$("quickNoteText").value.trim();if(!text)return;
+ current().notes.push({id:uid("note"),text,status:"open",createdAt:nowISO(),updatedAt:nowISO()});
+ current().quickNote="";diary("Notiz","Schnellnotiz als Einzelnotiz übernommen");renderAll();
+}
+function handleAction(action,id){
+ if(action==="edit-patient")showPatientForm(id);
+ else if(action==="move-patient")showMovePatient(id);
+ else if(action==="reopen-patient"){const p=current().patients.find(x=>x.id===id);if(p){p.transportedAway=false;p.area="triage";diary("Patientenbewegung",`${patientTitle(p)} zurück auf die Einsatzstelle gesetzt`,{patientId:id});renderAll();}}
+ else if(action==="edit-unit")showUnitForm(id);
+ else if(action==="assign-patient")showAssignPatient(id);
+ else if(action==="unassign-patient"){const p=current().patients.find(x=>x.id===id),u=current().units.find(x=>x.id===document.querySelector(`[data-action="unassign-patient"][data-id="${id}"]`)?.dataset.unitId);if(p&&u){syncUnitPatients(u,unitPatientIds(u).filter(pid=>pid!==p.id));p.area=u.area;p.assignedUnitId=null;diary("Patientenzuordnung",`${patientTitle(p)} von ${u.callsign} abgemeldet`,{patientId:p.id,unitId:u.id});renderAll();}}
+ else if(action==="move-unit")showMoveUnit(id);
+ else if(action==="complete-transport")completeTransport(id);
+ else if(action==="release-unit"){const u=current().units.find(x=>x.id===id);if(u&&!unitPatientIds(u).length&&confirm(`${u.callsign} aus dem Einsatz entlassen?`)){u.released=true;diary("Fahrzeug",`${u.callsign} aus dem Einsatz entlassen`,{unitId:id});renderAll();}else if(u?.patientId)alert("Bitte zuerst den Patienten einer anderen Fahrzeug zuordnen oder den Transport abschließen.");}
+ else if(action==="reactivate-unit"){const u=current().units.find(x=>x.id===id);if(u){const duplicate=current().units.find(x=>!x.released&&x.id!==u.id&&String(x.callsign||"").trim().toLowerCase()===String(u.callsign||"").trim().toLowerCase());if(duplicate){alert(`${u.callsign} kann nicht reaktiviert werden: Dieser Funkrufname ist bereits durch ein aktives Fahrzeug belegt.`);return;}u.released=false;u.area="ready";diary("Fahrzeug",`${u.callsign} reaktiviert`,{unitId:id});renderAll();}}
+ else if(action==="edit-note")showStandaloneNote(id);
+ else if(action==="remove-area")removeArea(id);
+ else if(action==="open-archive")openArchived(id);
+ else if(action==="export-archive")exportArchive(id);
+ else if(action==="delete-archive")deleteArchive(id);
+}
+document.addEventListener("click",e=>{
+ const b=e.target.closest("[data-action]");if(b){handleAction(b.dataset.action,b.dataset.id);return;}
+});
+function setupDragDrop(){
+ let dragging=null;
+ document.addEventListener("dragstart",e=>{
+  const tile=e.target.closest("[data-drag-type]");if(!tile||!canEdit()){e.preventDefault();return;}
+  dragging={type:tile.dataset.dragType,id:tile.dataset.id};e.dataTransfer.effectAllowed="move";e.dataTransfer.setData("text/plain",JSON.stringify(dragging));
+ });
+ document.addEventListener("dragover",e=>{const vehicle=e.target.closest("[data-drop-unit]");const area=e.target.closest("[data-drop-area]");if(vehicle&&dragging?.type==="patient"){e.preventDefault();vehicle.classList.add("drop-target");return;}if(area){e.preventDefault();area.closest(".area")?.classList.add("drop-target");}});
+ document.addEventListener("dragleave",e=>{const vehicle=e.target.closest("[data-drop-unit]");if(vehicle&&!vehicle.contains(e.relatedTarget))vehicle.classList.remove("drop-target");const area=e.target.closest(".area");if(area&&!area.contains(e.relatedTarget))area.classList.remove("drop-target");});
+ document.addEventListener("drop",e=>{
+  const vehicle=e.target.closest("[data-drop-unit]");
+  let item=dragging;try{item=JSON.parse(e.dataTransfer.getData("text/plain"))||item}catch(_){}
+  if(vehicle&&canEdit()&&item?.type==="patient"){e.preventDefault();document.querySelectorAll(".drop-target").forEach(x=>x.classList.remove("drop-target"));assignPatientToUnit(item.id,vehicle.dataset.dropUnit);dragging=null;return;}
+  const area=e.target.closest("[data-drop-area]");if(!area||!canEdit())return;e.preventDefault();
+  document.querySelectorAll(".drop-target").forEach(x=>x.classList.remove("drop-target"));
+  if(!item)return;
+  if(item.type==="patient"){const p=current().patients.find(x=>x.id===item.id);if(p){if(p.assignedUnitId){const oldUnit=current().units.find(u=>u.id===p.assignedUnitId);if(oldUnit)syncUnitPatients(oldUnit,unitPatientIds(oldUnit).filter(pid=>pid!==p.id));}const old=p.area;p.area=area.dataset.dropArea;p.transportedAway=false;p.assignedUnitId=null;diary("Patientenbewegung",`${patientTitle(p)}: ${areaName(old)} → ${areaName(p.area)}`,{patientId:p.id});renderAll();}}
+  else if(item.type==="unit")moveUnitTo(item.id,area.dataset.dropArea);
+  dragging=null;
+ });
+}
+setupDragDrop();
+$("dashboardAddPatient").addEventListener("click",()=>showPatientForm());
+$("dashboardAddUnit").addEventListener("click",()=>showUnitForm());
+$("dashboardOpenNotes").addEventListener("click",()=>setPage("notes"));
+$("addPatientBtn").addEventListener("click",()=>showPatientForm());
+$("quickPatientBtn").addEventListener("click",()=>showPatientForm());
+$("addUnitBtn").addEventListener("click",()=>showUnitForm());
+$("quickUnitBtn").addEventListener("click",()=>showUnitForm());
+$("addAreaBtn").addEventListener("click",addArea);
+$("patientSearch").addEventListener("input",renderPatients);$("patientFilter").addEventListener("change",renderPatients);
+$("unitSearch").addEventListener("input",renderUnits);$("unitStatusFilter").addEventListener("change",renderUnits);
+$("diarySearch").addEventListener("input",renderNotes);$("diaryCategoryFilter").addEventListener("change",renderNotes);$("diaryDateFilter").addEventListener("change",renderNotes);
+$("quickNoteText").addEventListener("input",()=>{if(canEdit()){current().quickNote=$("quickNoteText").value;persist();}});
+$("adoptNoteBtn").addEventListener("click",quickNoteAdopt);
+$("clearQuickNoteBtn").addEventListener("click",()=>{if(canEdit()&&confirm("Schnellnotizfeld leeren?")){current().quickNote="";$("quickNoteText").value="";persist();}});
+$("newStandaloneNoteBtn").addEventListener("click",()=>showStandaloneNote());
+$("quickNoteBtn").addEventListener("click",()=>{setPage("notes");$("quickNoteText").focus();});
+$("manualDiaryBtn").addEventListener("click",addManualDiary);
+$("archiveCurrentBtn").addEventListener("click",archiveCurrent);
+$("exportBtn").addEventListener("click",exportCurrent);
+$("importBtn").addEventListener("click",()=>$("importFileInput").click());
+$("importFileInput").addEventListener("change",e=>{importFile(e.target.files[0]);e.target.value="";});
+function transportInfo(p){
+ const inc=current();let callsign=(p.transport&&p.transport.callsign)||"",dest=(p.transport&&p.transport.destination)||"",u=null;
+ if(!callsign){
+  u=inc.units.find(x=>unitPatientIds(x).includes(p.id))||inc.units.find(x=>x.id===p.assignedUnitId)||null;
+  if(!u){const ev=inc.diary.find(e=>e.refs&&e.refs.patientId===p.id&&e.refs.unitId);if(ev)u=inc.units.find(x=>x.id===ev.refs.unitId)||null;}
+  if(u)callsign=u.callsign;
+ }
+ if(!dest){
+  const unitId=(p.transport&&p.transport.unitId)||(u&&u.id);
+  if(unitId){
+   const ev=inc.diary.find(e=>e.category==="Transport"&&e.refs&&e.refs.unitId===unitId&&/Transportziel/.test(e.description||""));
+   const m=ev&&String(ev.description).match(/→\s*(.+)$/);
+   if(m)dest=m[1].trim();
+   if(!dest){const cu=inc.units.find(x=>x.id===unitId);if(cu&&cu.destination)dest=cu.destination;}
+  }
+ }
+ return {callsign,dest};
+}
+function renderPrintExtra(){
+ const el=$("printExtra");if(!el)return;
+ const inc=current(),order=Object.fromEntries(CATS.map((c,i)=>[c.id,i]));
+ const ps=inc.patients.slice().sort((a,b)=>(order[a.category]??99)-(order[b.category]??99)||patientTitle(a).localeCompare(patientTitle(b),"de"));
+ const patientRows=ps.map(p=>{
+  const c=CATS.find(x=>x.id===p.category)||CATS[CATS.length-1],t=transportInfo(p),dark=["redtp","black"].includes(c.id);
+  const sub=patientSubtitle(p).split(" · ").filter(s=>s&&s!=="Abtransportiert"&&s!==areaName(p.area)).join(" · ");
+  return `<tr><td><span class="pe-cat" style="background:${c.color};color:${dark?"#fff":"#141a24"}">${escapeHTML(c.label)}</span></td><td><strong>${escapeHTML(patientTitle(p))}</strong>${p.number?` <span class="pe-sub">Nr. ${escapeHTML(p.number)}</span>`:""}${sub?`<div class="pe-sub">${escapeHTML(sub)}</div>`:""}${p.notes?`<div class="pe-note">${escapeHTML(p.notes)}</div>`:""}</td><td>${p.transportedAway?"Abtransportiert":escapeHTML(areaName(p.area))}</td><td>${escapeHTML(t.callsign||"—")}</td><td>${escapeHTML(t.dest||"—")}</td></tr>`;
+ }).join("");
+ const notes=(inc.notes||[]).slice().sort((a,b)=>(a.createdAt||"").localeCompare(b.createdAt||""));
+ const noteRows=notes.map(n=>`<div class="pe-noteitem"><div class="pe-sub">${fmtDate(n.createdAt)}</div><div class="pe-text">${escapeHTML(n.text)}</div></div>`).join("");
+ const events=(inc.diary||[]).slice().sort((a,b)=>(a.at||"").localeCompare(b.at||""));
+ const diaryRows=events.map(e=>{
+  const sn=e.refs&&e.refs.snapshot?`<div class="pe-sub">${Object.entries(e.refs.snapshot.byCategory||{}).map(([k,v])=>`${escapeHTML(k)}: ${v.gesamt} gesamt, ${v.abtransportiert} abtransportiert, ${v.vorOrt} vor Ort`).join(" · ")}</div>`:"";
+  return `<tr><td class="pe-time">${fmtDate(e.at)}</td><td>${escapeHTML(e.category)}</td><td>${escapeHTML(e.description)}${sn}</td></tr>`;
+ }).join("");
+ el.innerHTML=`
+ <div class="pe-block"><h2>Patientenliste (${ps.length})</h2>${ps.length?`<table class="pe-table"><thead><tr><th>Sichtung</th><th>Patient</th><th>Status</th><th>Fahrzeug</th><th>Transportziel</th></tr></thead><tbody>${patientRows}</tbody></table>`:`<p>Keine Patienten erfasst.</p>`}</div>
+ <div class="pe-notes"><h2>Notizen (${notes.length})</h2>${noteRows||`<p>Keine Einzelnotizen vorhanden.</p>`}</div>
+ <div class="pe-block"><h2>Einsatztagebuch (${events.length} Einträge)</h2>${events.length?`<table class="pe-table"><thead><tr><th>Zeit</th><th>Kategorie</th><th>Eintrag</th></tr></thead><tbody>${diaryRows}</tbody></table>`:`<p>Keine Tagebucheinträge vorhanden.</p>`}</div>`;
+}
+/* ===== PDF-Erzeugung ohne Druckdialog (läuft offline, auch auf iOS/iPadOS) ===== */
+const PdfDoc=(()=>{
+ const W=595.28,H=841.89,M=40,CW=W-2*M,LH=1.25;
+ const RW=[278,278,355,556,556,889,667,191,333,333,389,584,278,333,278,278,556,556,556,556,556,556,556,556,556,556,278,278,584,584,584,556,1015,667,667,722,722,667,611,778,722,278,500,667,556,833,722,778,667,778,722,667,611,722,667,944,667,667,611,278,278,278,469,556,333,556,556,500,556,556,278,556,556,222,222,500,222,833,556,556,556,556,333,500,278,556,500,722,500,500,500,334,260,334,584];
+ const BW=[278,333,474,556,556,889,722,238,333,333,389,584,278,333,278,278,556,556,556,556,556,556,556,556,556,556,333,333,584,584,584,611,975,722,722,722,722,667,611,778,722,278,556,722,611,833,722,778,667,778,722,667,611,722,667,944,667,667,611,333,278,333,584,556,333,556,611,556,611,556,333,611,611,278,278,556,278,889,611,611,611,611,389,556,333,611,556,778,556,556,500,389,280,389,584];
+ const EX={228:[556,556],246:[556,611],252:[556,611],196:[667,722],214:[778,778],220:[722,722],223:[611,611],0x97:[1000,1000],0x96:[556,556],0xB7:[278,278],0x93:[333,500],0x94:[333,500],0x91:[222,278],0x92:[222,278],0xB0:[400,400],0x85:[1000,1000],0x95:[350,350]};
+ const SPECIAL={"€":"\x80","‚":"\x82","„":"\x84","…":"\x85","‘":"\x91","’":"\x92","“":"\x93","”":"\x94","•":"\x95","–":"\x96","—":"\x97"};
+ const SPECIAL_BYTES=Object.values(SPECIAL);
+ function norm(s){
+  s=String(s==null?"":s).replace(/\r\n?/g,"\n").replace(/→/g,"->").replace(/←/g,"<-").replace(/\t/g," ");
+  let o="";
+  for(const ch of s){const c=ch.codePointAt(0);
+   if(ch==="\n")o+=ch;else if(SPECIAL[ch])o+=SPECIAL[ch];else if((c>=32&&c<127)||(c>=160&&c<256)||SPECIAL_BYTES.includes(ch))o+=ch;else o+="?";}
+  return o;
+ }
+ const cw=(ch,bold)=>{const c=ch.charCodeAt(0);if(c>=32&&c<127)return(bold?BW:RW)[c-32];const e=EX[c];return e?e[bold?1:0]:556;};
+ const tw=(s,size,bold)=>{let t=0;for(let i=0;i<s.length;i++)t+=cw(s[i],bold);return t/1000*size;};
+ function wrap(s,size,bold,maxW){
+  const out=[];
+  for(const para of norm(s).split("\n")){
+   if(para===""){out.push("");continue;}
+   let line="";
+   for(const word of para.split(" ")){
+    const cand=line?line+" "+word:word;
+    if(tw(cand,size,bold)<=maxW){line=cand;continue;}
+    if(line){out.push(line);line="";}
+    if(tw(word,size,bold)<=maxW){line=word;continue;}
+    let chunk="";
+    for(const ch of word){if(chunk&&tw(chunk+ch,size,bold)>maxW){out.push(chunk);chunk=ch;}else chunk+=ch;}
+    line=chunk;
+   }
+   out.push(line);
+  }
+  return out;
+ }
+ function rgb(hex){
+  let h=String(hex||"").replace("#","");
+  if(h.length===3)h=h.split("").map(c=>c+c).join("");
+  if(!/^[0-9a-f]{6}$/i.test(h))h="888888";
+  return [0,2,4].map(i=>(parseInt(h.substr(i,2),16)/255).toFixed(3)).join(" ");
+ }
+ const esc=s=>s.replace(/[\\()]/g,"\\$&");
+ return function create(){
+  const pages=[];let cur,y;
+  const np=()=>{cur=[];pages.push(cur);y=M;};
+  np();
+  const lim=()=>H-M-12;
+  const need=h=>{if(y+h>lim()){np();return true;}return false;};
+  const Y=v=>(H-v).toFixed(2);
+  function txt(s,x,top,size,bold,color){
+   s=norm(s).replace(/\n/g," ");if(!s)return;
+   cur.push(`BT /F${bold?2:1} ${size} Tf ${rgb(color||"#141a24")} rg ${x.toFixed(2)} ${Y(top+size*0.8)} Td (${esc(s)}) Tj ET`);
+  }
+  function rect(x,top,w,h,bg,stroke){
+   cur.push(stroke?`${rgb(bg)} rg 0.7 G 0.5 w ${x.toFixed(2)} ${Y(top+h)} ${w.toFixed(2)} ${h.toFixed(2)} re B`:`${rgb(bg)} rg ${x.toFixed(2)} ${Y(top+h)} ${w.toFixed(2)} ${h.toFixed(2)} re f`);
+  }
+  function hline(x1,x2,top,color,wd){cur.push(`${rgb(color||"#d0d5de")} RG ${wd||0.5} w ${x1.toFixed(2)} ${Y(top)} m ${x2.toFixed(2)} ${Y(top)} l S`);}
+  const api={
+   title(t){txt(t,M,y,18,true);y+=18*LH+2;},
+   h(t,size){size=size||13;need(size*LH+22);y+=10;txt(t,M,y,size,true);y+=size*LH+2;hline(M,M+CW,y,"#9aa3b2");y+=6;},
+   para(t,o){o=o||{};const size=o.size||9;for(const l of wrap(t,size,o.bold,CW)){need(size*LH);txt(l,M,y,size,o.bold,o.color);y+=size*LH;}y+=(o.gap==null?4:o.gap);},
+   gap(n){y+=n;},
+   pageBreak(){if(y>M+1)np();},
+   kpis(items){
+    const gap=8,w=(CW-gap*(items.length-1))/items.length,h=46;need(h+10);
+    items.forEach((it,i)=>{const x=M+i*(w+gap);rect(x,y,w,h,"#eef1f6");txt(String(it[1]),x+10,y+7,18,true);txt(it[0],x+10,y+31,8,false,"#617086");});
+    y+=h+10;
+   },
+   table(cols,head,rows,o){
+    o=o||{};const size=o.size||9,pad=4,total=cols.reduce((a,b)=>a+b,0);
+    const prep=(row,isHead)=>{
+     let hmax=0;
+     const cells=row.map((cell,i)=>{
+      if(cell&&cell.cat)return{cat:cell.cat,h:15};
+      const parts=(cell&&cell.parts)||[{t:cell}];
+      let lines=[];
+      parts.forEach(p=>{const sz=p.size||size,b=isHead?true:p.bold;wrap(p.t==null?"":p.t,sz,b,cols[i]-2*pad).forEach(s=>lines.push({s,size:sz,bold:b,color:isHead?"#46536a":p.color}));});
+      if(lines.length>60){lines=lines.slice(0,60);lines.push({s:"… (gekürzt)",size:8,color:"#617086"});}
+      const h=lines.reduce((a,l)=>a+l.size*LH,0);
+      return{lines,h};
+     });
+     cells.forEach(c=>{if(c.h>hmax)hmax=c.h;});
+     return{cells,h:hmax+2*pad};
+    };
+    const draw=(p,bg)=>{
+     if(bg)rect(M,y,total,p.h,bg);
+     let x=M;
+     p.cells.forEach((c,i)=>{
+      let ty=y+pad;
+      if(c.cat){const w=Math.min(cols[i]-2*pad,tw(norm(c.cat.label),8,true)+12);rect(x+pad,ty,w,13,c.cat.bg,true);txt(c.cat.label,x+pad+6,ty+2.6,8,true,c.cat.fg);}
+      else c.lines.forEach(l=>{txt(l.s,x+pad,ty,l.size,l.bold,l.color);ty+=l.size*LH;});
+      x+=cols[i];
+     });
+     hline(M,M+total,y+p.h);
+     y+=p.h;
+    };
+    const hp=head?prep(head,true):null;
+    if(hp){need(hp.h+30);draw(hp,"#eceff4");}
+    rows.forEach(r=>{
+     const p=prep(r,false);
+     if(need(p.h)&&hp)draw(hp,"#eceff4");
+     draw(p);
+    });
+    y+=6;
+   },
+   finish(footer){
+    pages.forEach((pg,i)=>{
+     cur=pg;
+     txt(footer,M,H-M+8,8,false,"#617086");
+     const s=`Seite ${i+1} von ${pages.length}`;
+     txt(s,W-M-tw(s,8,false),H-M+8,8,false,"#617086");
+    });
+    const objs=[];
+    objs[1]="<< /Type /Catalog /Pages 2 0 R >>";
+    objs[3]="<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica /Encoding /WinAnsiEncoding >>";
+    objs[4]="<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica-Bold /Encoding /WinAnsiEncoding >>";
+    const kids=[];let n=5;
+    pages.forEach(pg=>{
+     const content=pg.join("\n");
+     objs[n]=`<< /Type /Page /Parent 2 0 R /MediaBox [0 0 ${W} ${H}] /Resources << /Font << /F1 3 0 R /F2 4 0 R >> >> /Contents ${n+1} 0 R >>`;
+     objs[n+1]=`<< /Length ${content.length} >>\nstream\n${content}\nendstream`;
+     kids.push(n+" 0 R");n+=2;
+    });
+    objs[2]=`<< /Type /Pages /Kids [${kids.join(" ")}] /Count ${kids.length} >>`;
+    let out="%PDF-1.4\n%\xE2\xE3\xCF\xD3\n";const off=[];
+    for(let i=1;i<objs.length;i++){off[i]=out.length;out+=`${i} 0 obj\n${objs[i]}\nendobj\n`;}
+    const xr=out.length;
+    out+=`xref\n0 ${objs.length}\n0000000000 65535 f \n`;
+    for(let i=1;i<objs.length;i++)out+=String(off[i]).padStart(10,"0")+" 00000 n \n";
+    out+=`trailer\n<< /Size ${objs.length} /Root 1 0 R >>\nstartxref\n${xr}\n%%EOF`;
+    const u8=new Uint8Array(out.length);
+    for(let i=0;i<out.length;i++)u8[i]=out.charCodeAt(i)&255;
+    return new Blob([u8],{type:"application/pdf"});
+   }
+  };
+  return api;
+ };
+})();
+function buildReportPdf(){
+ const inc=current(),ps=inc.patients,active=inc.units.filter(u=>!u.released),transportUnits=active.filter(u=>u.area==="transport");
+ const meta=inc.metadata||{},d=PdfDoc();
+ let stamp;try{stamp=fmtDate(nowISO());}catch(e){stamp=new Date().toLocaleString("de-DE");}
+ d.title("RD-Einsatzcockpit · Einsatzbericht");
+ d.para("Erstellt am "+stamp+" · enthält personenbezogene Daten, vertraulich behandeln",{color:"#555",gap:2});
+ d.h("Einsatzdaten");
+ d.table([130,385],null,[
+  [{parts:[{t:"Einsatznummer",color:"#617086"}]},{parts:[{t:meta.number||"Nicht eingetragen",bold:true}]}],
+  [{parts:[{t:"Datum",color:"#617086"}]},{parts:[{t:fmtDay(meta.date),bold:true}]}],
+  [{parts:[{t:"Adresse / Ort",color:"#617086"}]},{parts:[{t:meta.address||"Nicht eingetragen",bold:true}]}],
+  [{parts:[{t:"R-Dienst / LNA",color:"#617086"}]},{parts:[{t:(meta.rdLead||"—")+" / "+(meta.lnaLead||"—"),bold:true}]}]
+ ]);
+ d.kpis([["Patienten gesamt",ps.length],["Aktive Fahrzeuge",active.length],["Aktive Transporte",transportUnits.length],["Abtransportiert",ps.filter(p=>p.transportedAway).length]]);
+ const catCell=c=>({cat:{label:c.label,bg:c.color,fg:["redtp","black"].includes(c.id)?"#ffffff":"#141a24"}});
+ d.h("Patienten nach Sichtung",11);
+ d.table([215,100,100,100],["Sichtung","Gesamt","Abtransportiert","Vor Ort"],CATS.map(c=>{
+  const m=ps.filter(p=>p.category===c.id),g=m.filter(p=>p.transportedAway).length;
+  return[catCell(c),String(m.length),String(g),String(m.length-g)];
+ }));
+ d.h("Fahrzeuge",11);
+ d.table([215,300],["Bereich","Fahrzeuge"],inc.areas.map(a=>[a.name,String(active.filter(u=>u.area===a.id).length)]));
+ d.table([215,300],["Fahrzeugkategorie","Aktiv"],["NEF","RTW","KTW","LZ-RTW"].map(t=>[t,String(active.filter(u=>u.vehicleType===t).length)]));
+ d.h("Aktive Transporte",11);
+ if(transportUnits.length){
+  d.table([90,70,200,155],["Funkrufname","Fahrzeug","Patienten","Transportziel"],transportUnits.map(u=>{
+   const names=unitPatientIds(u).map(pid=>ps.find(x=>x.id===pid)).filter(Boolean).map(p=>patientTitle(p));
+   return[u.callsign,u.vehicleType,names.length?names.join(", "):"Kein Patient zugeordnet",u.destination||"Offen"];
+  }));
+ }else d.para("Aktuell keine Fahrzeuge im Transport.");
+
+ const order=Object.fromEntries(CATS.map((c,i)=>[c.id,i]));
+ const sorted=ps.slice().sort((a,b)=>(order[a.category]??99)-(order[b.category]??99)||patientTitle(a).localeCompare(patientTitle(b),"de"));
+ d.pageBreak();
+ d.h("Patientenliste ("+sorted.length+")");
+ if(sorted.length){
+  d.table([82,178,82,75,98],["Sichtung","Patient","Status","Fahrzeug","Transportziel"],sorted.map(p=>{
+   const c=CATS.find(x=>x.id===p.category)||CATS[CATS.length-1],t=transportInfo(p);
+   const sub=patientSubtitle(p).split(" · ").filter(s=>s&&s!=="Abtransportiert"&&s!==areaName(p.area)).join(" · ");
+   const parts=[{t:patientTitle(p)+(p.number?"  (Nr. "+p.number+")":""),bold:true}];
+   if(sub)parts.push({t:sub,size:8,color:"#555555"});
+   if(p.notes)parts.push({t:p.notes,size:8,color:"#333333"});
+   return[catCell(c),{parts},p.transportedAway?"Abtransportiert":areaName(p.area),t.callsign||"—",t.dest||"—"];
+  }));
+ }else d.para("Keine Patienten erfasst.");
+
+ const notes=(inc.notes||[]).slice().sort((a,b)=>(a.createdAt||"").localeCompare(b.createdAt||""));
+ d.h("Notizen ("+notes.length+")");
+ if(notes.length)d.table([95,420],["Zeit","Notiz"],notes.map(n=>[fmtDate(n.createdAt),n.text]));
+ else d.para("Keine Einzelnotizen vorhanden.");
+ if(inc.quickNote&&String(inc.quickNote).trim()){d.h("Schnellnotiz",11);d.para(inc.quickNote);}
+
+ const events=(inc.diary||[]).slice().sort((a,b)=>(a.at||"").localeCompare(b.at||""));
+ d.pageBreak();
+ d.h("Einsatztagebuch ("+events.length+" Einträge)");
+ if(events.length){
+  d.table([82,78,355],["Zeit","Kategorie","Eintrag"],events.map(e=>{
+   const parts=[{t:e.description}];
+   if(e.refs&&e.refs.snapshot){const bc=e.refs.snapshot.byCategory||{};parts.push({t:Object.entries(bc).map(([k,v])=>`${k}: ${v.gesamt} gesamt, ${v.abtransportiert} abtransportiert, ${v.vorOrt} vor Ort`).join(" · "),size:8,color:"#555555"});}
+   return[fmtDate(e.at),e.category,{parts}];
+  }),{size:8.5});
+ }else d.para("Keine Tagebucheinträge vorhanden.");
+ return d.finish("RD-Einsatzcockpit · Einsatzbericht · "+(meta.number||"ohne Einsatznummer")+" · vertraulich");
+}
+async function exportReportPdf(){
+ let blob;
+ try{renderAnalysis();blob=buildReportPdf();}
+ catch(e){console.error(e);alert("PDF konnte nicht erstellt werden: "+(e&&e.message?e.message:e));return;}
+ const num=String((current().metadata||{}).number||"ohne-Nummer").replace(/[^A-Za-z0-9._-]+/g,"-");
+ const name="Einsatzbericht_"+num+"_"+new Date().toISOString().slice(0,10)+".pdf";
+ try{
+  const file=new File([blob],name,{type:"application/pdf"});
+  if(navigator.canShare&&navigator.canShare({files:[file]})){await navigator.share({files:[file],title:name});return;}
+ }catch(e){if(e&&e.name==="AbortError")return;}
+ const url=URL.createObjectURL(blob),a=document.createElement("a");
+ a.href=url;a.download=name;document.body.appendChild(a);a.click();a.remove();
+ setTimeout(()=>URL.revokeObjectURL(url),120000);
+}
+function setPrintStamp(){
+ let t;try{t=fmtDate(nowISO());}catch(e){t=new Date().toLocaleString("de-DE");}
+ const el=$("printStamp");if(el)el.textContent="Erstellt am "+t+" · enthält personenbezogene Daten, vertraulich behandeln";
+}
+window.addEventListener("beforeprint",()=>{try{renderAnalysis();renderPrintExtra();}catch(e){console.error(e)}setPrintStamp();});
+$("printReportBtn").addEventListener("click",exportReportPdf);
+$("pdfBtn").addEventListener("click",exportReportPdf);
+$("openAnalysisBtn").addEventListener("click",()=>setPage("analysis"));
+$("backDashboardBtn").addEventListener("click",()=>setPage("dashboard"));
+$("snapshotAnalysisBtn").addEventListener("click",()=>{
+ const inc=current();if(!canEdit()){alert("Dieser archivierte Einsatz ist schreibgeschützt.");return;}
+ const byCategory={};CATS.forEach(c=>{const group=inc.patients.filter(p=>p.category===c.id);byCategory[c.label]={gesamt:group.length,abtransportiert:group.filter(p=>p.transportedAway).length,vorOrt:group.filter(p=>!p.transportedAway).length};});
+ const active=inc.units.filter(u=>!u.released);
+ const snapshot={at:nowISO(),patients:inc.patients.length,byCategory,activeUnits:active.map(u=>({callsign:u.callsign,type:u.vehicleType,area:areaName(u.area),transportziel:u.area==="transport"?(u.destination||"Offen"):null})),activeTransports:active.filter(u=>u.area==="transport").length};
+ inc.diary.unshift({id:uid("evt"),at:snapshot.at,category:"Analyse-Momentaufnahme",description:`Analyse-Momentaufnahme gespeichert · ${snapshot.patients} Patienten · ${active.length} aktive Fahrzeuge · ${snapshot.activeTransports} aktive Transporte`,refs:{snapshot}});
+ persist();renderNotes();alert("Momentaufnahme mit Zeitstempel im Einsatztagebuch gespeichert.");
+});
+$("metadataBtn").addEventListener("click",()=>{
+ const m=current().metadata;
+ openModal("Einsatzdaten ergänzen",`<div class="grid two">${field("metaNumber","Einsatznummer",m.number||"","text","z. B. RD-2026-014")}${field("metaDate","Einsatzdatum",m.date||new Date().toISOString().slice(0,10),"date")}${field("metaAddress","Adresse / Einsatzort",m.address||"","text","Straße, Hausnummer, Ort")}${field("metaLocation","Zusätzliche Ortsangabe",m.location||"","text","Gebäude, Zufahrt, Abschnitt")}${field("metaRD","R-Dienst",m.rdLead||"","text","Name")}${field("metaLNA","LNA",m.lnaLead||"","text","Name")}</div>`,[{label:"Abbrechen",onClick:closeModal},{label:"Speichern",className:"primary",onClick:()=>{if(!canEdit())return;Object.assign(current().metadata,{number:$("metaNumber").value.trim(),date:$("metaDate").value,address:$("metaAddress").value.trim(),location:$("metaLocation").value.trim(),rdLead:$("metaRD").value.trim(),lnaLead:$("metaLNA").value.trim()});diary("Einsatz","Einsatzdaten ergänzt oder geändert");closeModal();renderAll();}}]);
+});
+$("menuBtn").addEventListener("click",()=>{
+ openModal("Weitere Funktionen",`<p>Weitere Funktionen für den Einsatz.</p><div class="quick-row"><button id="menuArchive">Einsatz archivieren</button><button id="menuOpenArchive">Archiv öffnen</button><button id="menuNewIncident">Neuen Einsatz</button></div>`,[{label:"Schließen",onClick:closeModal}]);
+ $("menuArchive").addEventListener("click",()=>{closeModal();archiveCurrent();});
+ $("menuOpenArchive").addEventListener("click",()=>{closeModal();renderArchive();openModal("Einsatzarchiv",$("archiveList").innerHTML,[{label:"Schließen",onClick:closeModal}]);});
+ $("menuNewIncident").addEventListener("click",()=>{closeModal();$("newIncidentBtn").click();});
+});
+$("newIncidentBtn").addEventListener("click",()=>{
+ if(!canEdit())return;
+ if(!confirm("Neuen Einsatz anlegen? Der aktuelle Einsatz wird automatisch im Archiv gesichert."))return;
+ const old=JSON.parse(JSON.stringify(current()));old.archived=true;old.readOnly=true;
+ state.archive.push({id:uid("archive"),archivedAt:nowISO(),snapshot:old});state.current=blankIncident();persist();renderAll();setPage("patients");
+});
+$("quickPatientBtn").addEventListener("click",()=>showPatientForm());
+$("quickUnitBtn").addEventListener("click",()=>showUnitForm());
+renderAll();
+setPage("patients");
+})();
+</script>
+</body>
+</html>
